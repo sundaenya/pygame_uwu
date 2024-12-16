@@ -2,6 +2,8 @@ import pygame
 import sys
 from player import Player
 from enemy import Enemy
+from bullet import Bullet
+from collision import check_collision, check_bullet_collisions
 
 # Initialize Pygame
 pygame.init()
@@ -38,6 +40,10 @@ def main():
     all_sprites.add(player)
     all_sprites.add(enemy)
     
+    bullets = pygame.sprite.Group()
+    enemies = pygame.sprite.Group()
+    enemies.add(enemy)
+    
     game_over = False
 
     # Game loop
@@ -47,16 +53,25 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                target_x, target_y = pygame.mouse.get_pos()
+                bullet = Bullet(player.rect.centerx, player.rect.centery, target_x, target_y)
+                all_sprites.add(bullet)
+                bullets.add(bullet)
 
         if not game_over:
             # Update game state
             keys = pygame.key.get_pressed()
             player.update(keys)
             enemy.update(player)
+            bullets.update()
 
-            # Check for collisions
-            if pygame.sprite.collide_rect(player, enemy):
+            # Check for player-enemy collision
+            if check_collision(player, enemy):
                 game_over = True
+
+            # Check for bullet-enemy collisions
+            check_bullet_collisions(bullets, enemies)
 
         # Clear the screen
         screen.fill(BLACK)
