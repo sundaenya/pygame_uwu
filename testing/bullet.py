@@ -20,3 +20,6 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.y += self.dy
         if self.rect.bottom < 0 or self.rect.top > 600 or self.rect.left > 800 or self.rect.right < 0:
             self.kill()
+    
+    def die(self):
+        self.kill()

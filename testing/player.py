@@ -3,8 +3,7 @@ import pygame
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.Surface((50, 50))
-        self.image.fill((0, 128, 255))  # Blue color
+        self.image = pygame.transform.scale(pygame.image.load('data/Kibty.png'), (100,100))  # Blue color
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
         self.speed = 5

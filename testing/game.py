@@ -1,5 +1,6 @@
 import pygame
 import sys
+import os
 from player import Player
 from enemy import Enemy
 from bullet import Bullet
@@ -63,15 +64,14 @@ def main():
             # Update game state
             keys = pygame.key.get_pressed()
             player.update(keys)
-            enemy.update(player)
+            for e in enemies:
+                e.update(player)
+                if check_collision(player, e):
+                    game_over = True
             bullets.update()
 
-            # Check for player-enemy collision
-            if check_collision(player, enemy):
-                game_over = True
-
             # Check for bullet-enemy collisions
-            check_bullet_collisions(bullets, enemies)
+            check_bullet_collisions(enemies, bullets)
 
         # Clear the screen
         screen.fill(BLACK)
