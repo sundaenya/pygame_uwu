@@ -20,3 +20,6 @@ class Enemy(pygame.sprite.Sprite):
 
     def die(self):
         self.kill()
+    
+    def get_pos(self):
+        return self.rect.x, self.rect.y

@@ -8,7 +8,7 @@ class Bullet(pygame.sprite.Sprite):
         pygame.draw.circle(self.image, (255, 255, 0), (5, 5), 5)  # Draw a yellow circle
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
-        self.speed = 10
+        self.speed = 1
 
         # Calculate direction
         angle = math.atan2(target_y - y, target_x - x)
@@ -18,7 +18,7 @@ class Bullet(pygame.sprite.Sprite):
     def update(self):
         self.rect.x += self.dx
         self.rect.y += self.dy
-        if self.rect.bottom < 0 or self.rect.top > 600 or self.rect.left > 800 or self.rect.right < 0:
+        if self.rect.bottom < 0 or self.rect.top > 1080 or self.rect.left > 1920 or self.rect.right < 0:
             self.kill()
     
     def die(self):

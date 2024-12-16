@@ -10,10 +10,10 @@ from collision import check_collision, check_bullet_collisions
 pygame.init()
 
 # Set up the game window
-screen_width = 800
-screen_height = 600
-screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption('Roguelike Game')
+screen_width = 1920
+screen_height = 1080
+screen = pygame.display.set_mode((screen_width, screen_height), pygame.NOFRAME)
+pygame.display.set_caption('Amelia Earheart Simulator')
 
 # Define colors
 BLACK = (0, 0, 0)
@@ -47,6 +47,9 @@ def main():
     
     game_over = False
 
+    FIRE  = pygame.USEREVENT + 1
+    pygame.time.set_timer(FIRE, 1000)
+
     # Game loop
     while True:
         # Handle events
@@ -54,16 +57,18 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                target_x, target_y = pygame.mouse.get_pos()
+            
+            elif event.type == FIRE:
+                target_x, target_y = player.get_closest_enemy(enemies).get_pos()
                 bullet = Bullet(player.rect.centerx, player.rect.centery, target_x, target_y)
                 all_sprites.add(bullet)
                 bullets.add(bullet)
-
+            
         if not game_over:
             # Update game state
             keys = pygame.key.get_pressed()
             player.update(keys)
+
             for e in enemies:
                 e.update(player)
                 if check_collision(player, e):

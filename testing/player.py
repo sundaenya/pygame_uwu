@@ -18,3 +18,7 @@ class Player(pygame.sprite.Sprite):
             self.rect.y -= self.speed
         if keys[pygame.K_s]:
             self.rect.y += self.speed
+
+    def get_closest_enemy(self, enemies):
+        pos = pygame.math.Vector2(self.rect.x, self.rect.y)
+        return min([e for e in enemies], key=lambda e: pos.distance_to(pygame.math.Vector2(e.rect.x, e.rect.y)))
