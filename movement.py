@@ -1,68 +1,50 @@
-# Example file showing a circle moving on screen
 import pygame
-import math
 
 # pygame setup
 pygame.init()
 
-screenSize = width, height = 1280, 720
+# Screen and world setup
+screenSize = SCREEN_WIDTH, SCREEN_HEIGHT = 1280, 720
 playerSize = 25
-i = 0
+
+WORLD_WIDTH, WORLD_HEIGHT = 2000, 2000
+world_surface = pygame.Surface((WORLD_WIDTH, WORLD_HEIGHT))
+world_surface.fill("green")  # World background
 
 screen = pygame.display.set_mode(screenSize)
 clock = pygame.time.Clock()
 running = True
 dt = 0
 
-player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
- 
-# set the pygame window name
-pygame.display.set_caption('Show Text')
- 
-# create a font object.
-# 1st parameter is the font file
-# which is present in pygame.
-# 2nd parameter is size of the font
+# Player and camera setup
+player_pos = pygame.Vector2(WORLD_WIDTH / 2, WORLD_HEIGHT / 2)
+camera_offset = pygame.Vector2(0, 0)
+
+# Font for rendering text
+pygame.display.set_caption('Player Near Borders')
 font = pygame.font.Font('freesansbold.ttf', 32)
- 
-#text = font.render(str(player_pos.x) + " " + str(player_pos.y), True, "white", "black")
- 
-# create a rectangular object for the
-# text surface object
-#textRect = text.get_rect()
 
+speed = 300  # Player movement speed
 
-# set the center of the rectangular object.
+# Create objects in the world
+trees = [
+    pygame.Rect(400, 300, 50, 100),
+    pygame.Rect(1000, 800, 50, 100),
+    pygame.Rect(2000, 1500, 50, 100)
+]
 
 while running:
-    # poll for events
-    # pygame.QUIT event means the user clicked X to close your window
+    # Poll for events
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-    text = font.render(str(round(player_pos.x, 2)) + " " + str(round(player_pos.y, 2)), True, "white")
+
+    # Text rendering
+    text = font.render(f"{round(player_pos.x, 2)}, {round(player_pos.y, 2)}", True, "white")
     textRect = text.get_rect()
     textRect.center = (100, 50)
 
-    # fill the screen with a color to wipe away anything from last frame
-    screen.fill("purple")
-
-    screen.blit(text, textRect)
-
-    pygame.draw.circle(screen, "red", player_pos, playerSize)
-
-    if player_pos.x <= (0 + (playerSize / 2)) or player_pos.x >= screenSize[0]:
-        i = i + 1
-        print("out of bound, count " + str(i))
-        speed = 0
-        player_pos.x = (player_pos.x*50 + screen.get_width() / 2) / 51
-
-    if player_pos.y <= (0 + (playerSize / 2)) or player_pos.y >= screenSize[1]:
-        i = i + 1
-        print("out of bound, count " + str(i))
-        speed = 0
-        player_pos.y = (player_pos.y*50 + screen.get_width() / 2) / 51
-
+    # Player movement
     keys = pygame.key.get_pressed()
     if keys[pygame.K_w]:
         player_pos.y -= speed * dt
@@ -73,13 +55,51 @@ while running:
     if keys[pygame.K_d]:
         player_pos.x += speed * dt
 
-    speed = 300
-    # flip() the display to put your work on screen
+    # Clamp player position within the world boundaries
+    player_pos.x = max(0 + playerSize, min(WORLD_WIDTH - playerSize, player_pos.x))
+    player_pos.y = max(0 + playerSize, min(WORLD_HEIGHT - playerSize, player_pos.y))
+
+    camera_offset.x = max(0 + SCREEN_WIDTH // 2, min(WORLD_WIDTH - SCREEN_WIDTH // 2, player_pos.x - SCREEN_WIDTH // 2))
+    camera_offset.y = max(0 + SCREEN_HEIGHT // 2, min(WORLD_HEIGHT - SCREEN_HEIGHT // 2, player_pos.y - SCREEN_HEIGHT // 2))
+
+    # Adjust camera offset
+    if player_pos.x < SCREEN_WIDTH // 2:
+        camera_offset.x = 0
+    elif player_pos.x > WORLD_WIDTH - SCREEN_WIDTH // 2:
+        camera_offset.x = WORLD_WIDTH - SCREEN_WIDTH
+    else:
+        camera_offset.x = player_pos.x - SCREEN_WIDTH // 2
+
+    if player_pos.y < SCREEN_HEIGHT // 2:
+        camera_offset.y = 0
+    elif player_pos.y > WORLD_HEIGHT - SCREEN_HEIGHT // 2:
+        camera_offset.y = WORLD_HEIGHT - SCREEN_HEIGHT
+    else:
+        camera_offset.y = player_pos.y - SCREEN_HEIGHT // 2
+
+    # Clear the screen
+    screen.fill("purple")
+
+    # Render the world
+    screen.blit(world_surface, (-camera_offset.x, -camera_offset.y))
+
+    # Draw objects in the world (trees)
+    for tree in trees:
+        pygame.draw.rect(world_surface, "brown", tree)
+        pygame.draw.ellipse(world_surface, "darkgreen", tree.inflate(50, 50))
+
+    # Render player
+    player_screen_x = player_pos.x - camera_offset.x
+    player_screen_y = player_pos.y - camera_offset.y
+    pygame.draw.circle(screen, "red", (player_screen_x, player_screen_y), playerSize)
+
+    # Render text
+    screen.blit(text, textRect)
+
+    # Update the display
     pygame.display.flip()
 
-    # limits FPS to 60
-    # dt is delta time in seconds since last frame, used for framerate-
-    # independent physics.
+    # Cap FPS and calculate delta time
     dt = clock.tick(60) / 1000
 
 pygame.quit()

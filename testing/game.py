@@ -33,10 +33,12 @@ def main():
     
     # Create an enemy instance
     enemy = Enemy(screen_width // 4, screen_height // 4)
-    
+    enemy1 = Enemy(screen_width // 4, screen_height // 4)
+
     all_sprites = pygame.sprite.Group()
     all_sprites.add(player)
     all_sprites.add(enemy)
+    all_sprites.add(enemy1)
     
     game_over = False
 
@@ -53,6 +55,7 @@ def main():
             keys = pygame.key.get_pressed()
             player.update(keys)
             enemy.update(player)
+            enemy1.update(player)
 
             # Check for collisions
             if pygame.sprite.collide_rect(player, enemy):
