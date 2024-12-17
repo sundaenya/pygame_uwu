@@ -6,11 +6,11 @@ class Camera:
         self.camera_offset = pygame.Vector2(0, 0)
 
     def move(self, player_pos):
-        screen_width = GameSettings.SCREEN_WIDTH.value
-        screen_height = GameSettings.SCREEN_HEIGHT.value
-        world_width = GameSettings.WORLD_WIDTH.value
-        world_height = GameSettings.WORLD_HEIGHT.value
-        player_dimension = GameSettings.PLAYER_SIZE.value
+        screen_width = GameSettings.SCREEN_WIDTH 
+        screen_height = GameSettings.SCREEN_HEIGHT 
+        world_width = GameSettings.WORLD_WIDTH 
+        world_height = GameSettings.WORLD_HEIGHT 
+        player_dimension = GameSettings.PLAYER_SIZE 
 
         # Calculate desired camera offset based on player position
         desired_x = player_pos.x - screen_width / 2 + player_dimension // 2
