@@ -71,8 +71,7 @@ def main():
             
             elif event.type == FIRE:
                 try:
-                    target_x = player.get_closest_enemy(enemies).get_pos() + camera.get_offset().x
-                    target_y = player.get_closest_enemy(enemies).get_pos() + camera.get_offset().y
+                    target_x,target_y = player.get_closest_enemy(enemies).get_pos()
                 except:
                     target_x, target_y = player.rect.centerx, player.rect.centery - 1
 
@@ -81,7 +80,7 @@ def main():
                 bullets.add(bullet)
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                enemy = (Enemy(pygame.mouse.get_pos()))
+                enemy = Enemy(tuple(map(sum, zip(pygame.mouse.get_pos(), camera.get_offset()))))
                 enemies.add(enemy)
                 all_sprites.add(enemy)
             
@@ -97,7 +96,7 @@ def main():
             bullets.update()
 
             # Check for bullet-enemy collisions
-            # check_bullet_collisions(enemies, bullets)
+            check_bullet_collisions(enemies, bullets)
 
             camera.move(player.rect)
 
