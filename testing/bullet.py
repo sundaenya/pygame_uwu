@@ -8,7 +8,7 @@ class Bullet(pygame.sprite.Sprite):
         pygame.draw.circle(self.image, (255, 255, 0), (5, 5), 5)  # Draw a yellow circle
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
-        self.speed = 1
+        self.speed = 10
 
         # Calculate direction
         angle = math.atan2(target_y - y, target_x - x)

@@ -35,7 +35,7 @@ def main():
     player = Player(screen_width // 2, screen_height // 2)
     
     # Create an enemy instance
-    enemy = Enemy(screen_width // 4, screen_height // 4)
+    enemy = Enemy((screen_width // 4, screen_height // 4))
     
     all_sprites = pygame.sprite.Group()
     all_sprites.add(player)
@@ -48,7 +48,7 @@ def main():
     game_over = False
 
     FIRE  = pygame.USEREVENT + 1
-    pygame.time.set_timer(FIRE, 1000)
+    pygame.time.set_timer(FIRE, 250)
 
     # Game loop
     while True:
@@ -59,10 +59,18 @@ def main():
                 sys.exit()
             
             elif event.type == FIRE:
-                target_x, target_y = player.get_closest_enemy(enemies).get_pos()
+                try:
+                    target_x, target_y = player.get_closest_enemy(enemies).get_pos()
+                except:
+                    target_x, target_y = player.rect.centerx, player.rect.centery - 1
                 bullet = Bullet(player.rect.centerx, player.rect.centery, target_x, target_y)
                 all_sprites.add(bullet)
                 bullets.add(bullet)
+
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                enemy = (Enemy(pygame.mouse.get_pos()))
+                enemies.add(enemy)
+                all_sprites.add(enemy)
             
         if not game_over:
             # Update game state
