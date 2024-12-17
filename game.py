@@ -10,9 +10,14 @@ from bullet import Bullet
 from camera import Camera
 from enums import GameSettings
 from collision import check_collision, check_bullet_collisions
+from random import randrange  
 
 # Initialize Pygame
 pygame.init()
+
+os.chdir(os.path.dirname(__file__))
+data_path = os.path.join("data", "Kibty.png")
+
 # Set up the game window
 
 screen_width = GameSettings.SCREEN_WIDTH 
@@ -21,6 +26,8 @@ world_width = GameSettings.WORLD_WIDTH
 world_height = GameSettings.WORLD_HEIGHT
 screen = pygame.display.set_mode((screen_width, screen_height), pygame.NOFRAME)
 pygame.display.set_caption('Amelia Earheart Simulator')
+
+crab = pygame.image.load(data_path)
 
 
 # Define colors
@@ -67,6 +74,7 @@ def draw_health_bar(surface, x, y, current_health, max_health, bar_width, bar_he
 def main():
     clock = pygame.time.Clock()
     sound.bg_music()
+
     player = Player(screen_width // 2, screen_height // 2)
     enemy = Enemy((1000, 1000), 'basic')
 
@@ -82,12 +90,14 @@ def main():
     FIRE  = pygame.USEREVENT + 1
     pygame.time.set_timer(FIRE, 250)
 
-    SPAWN = pygame.USEREVENT +2
-    pygame.time.set_timer(SPAWN, 1500)
+    SPAWN_ENEMY = pygame.USEREVENT + 2  # Define a new event
+    pygame.time.set_timer(SPAWN_ENEMY, 100) 
 
     # Game loop
-    while True:
+    running = True
+    while running:
         # Handle events
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -104,8 +114,24 @@ def main():
                 all_sprites.add(bullet)
                 bullets.add(bullet)
 
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                enemy = Enemy(tuple(map(sum, zip(pygame.mouse.get_pos(), camera.get_offset()))), random.choice(('basic', 'heavy')))
+
+            elif event.type == pygame.MOUSEBUTTONDOWN and not game_over:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                world_x = mouse_x + camera.camera_offset.x
+                world_y = mouse_y + camera.camera_offset.y
+                enemy = Enemy((world_x, world_y))
+                enemies.add(enemy)
+                all_sprites.add(enemy)
+            
+            # Randomly spawn enemies
+            elif event.type == SPAWN_ENEMY and not game_over:
+
+                spawn_x, spawn_y = randrange(world_width), randrange(world_height)
+
+                while player.rect.collidepoint(spawn_x, spawn_y):
+                    spawn_x, spawn_y = randrange(world_width), randrange(world_height)
+
+                enemy = Enemy((spawn_x, spawn_y))
                 enemies.add(enemy)
                 all_sprites.add(enemy)
             
@@ -140,14 +166,27 @@ def main():
             offset_pos = sprite.rect.topleft - camera.camera_offset
             screen.blit(sprite.image, offset_pos)
 
+
             if hitbox:
                 pygame.draw.rect(screen, "red",pygame.Rect(offset_pos.x, offset_pos.y, sprite.rect.width, sprite.rect.height), width=2)
 
         draw_health_bar(screen, 50, 50, player.health, 100, 200, 20)
 
         # Display 'You Lose' message if game is over
+
+        pygame.draw.rect(screen, "red",
+                             pygame.Rect(offset_pos.x, offset_pos.y, sprite.rect.width, sprite.rect.height),width=2)
+            
+
+        # Display 'You Lose' message if game is over
         if game_over:
-            show_message(screen, 'You Lose', WHITE, screen_width / 2, screen_height / 2)
+            show_message(screen, 'You Lose', WHITE, screen_width // 2 - 100, screen_height // 2 - 50)
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_ESCAPE]:
+                running = False
+                pygame.quit()
+            if keys[pygame.K_SPACE]:
+                main()          
 
         # Update the display
         pygame.display.flip()
