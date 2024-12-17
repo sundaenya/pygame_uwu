@@ -1,13 +1,24 @@
-import pygame.display
+from enums import GameSettings
+import pygame
 
-
-class Camera():
+class Camera:
     def __init__(self):
-        super().__init__()
-        self.display_surface = pygame.display.get_surface()
-        self.offset = pygame.Vector2()
+        self.camera_offset = pygame.Vector2(0, 0)
 
-    def draw(self, target_pos):
-        self.offset.x = -(target_pos - 1280/2)
-        for sprite in self:
-            self.display_surface.blit(sprite.image, sprite.rect.topleft + self.offset)
+    def move(self, player_pos):
+        screen_width = GameSettings.SCREEN_WIDTH.value
+        screen_height = GameSettings.SCREEN_HEIGHT.value
+        world_width = GameSettings.WORLD_WIDTH.value
+        world_height = GameSettings.WORLD_HEIGHT.value
+        player_dimension = GameSettings.PLAYER_SIZE.value
+
+        # Calculate desired camera offset based on player position
+        desired_x = player_pos.x - screen_width / 2 + player_dimension // 2
+        desired_y = player_pos.y - screen_height / 2 + player_dimension // 2
+
+        # Clamp the desired offset to the world's boundaries
+        self.camera_offset.x = max(0, min(world_width - screen_width, desired_x))
+        self.camera_offset.y = max(0, min(world_height - screen_height, desired_y))
+
+    def get_offset(self):
+        return self.camera_offset

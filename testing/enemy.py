@@ -1,11 +1,11 @@
 import pygame
 import math
+import os
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.Surface((50, 50))
-        self.image.fill((255, 0, 0))  # Red color
+        self.image = pygame.transform.scale(pygame.image.load('../data/crab.png'), (100,100))  # Red color
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
         self.speed = 2
@@ -17,3 +17,6 @@ class Enemy(pygame.sprite.Sprite):
 
         self.rect.x += dx * self.speed
         self.rect.y += dy * self.speed
+
+    def die(self):
+        self.kill()

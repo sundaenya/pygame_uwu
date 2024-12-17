@@ -1,4 +1,5 @@
 import pygame
+from camera import Camera
 
 # pygame setup
 pygame.init()
@@ -33,6 +34,8 @@ trees = [
     pygame.Rect(2000, 1500, 50, 100)
 ]
 
+camera = Camera()
+
 while running:
     # Poll for events
     for event in pygame.event.get():
@@ -58,39 +61,40 @@ while running:
     # Clamp player position within the world boundaries
     player_pos.x = max(0 + playerSize, min(WORLD_WIDTH - playerSize, player_pos.x))
     player_pos.y = max(0 + playerSize, min(WORLD_HEIGHT - playerSize, player_pos.y))
+    #
+    # camera_offset.x = max(0 + SCREEN_WIDTH // 2, min(WORLD_WIDTH - SCREEN_WIDTH // 2, player_pos.x - SCREEN_WIDTH // 2))
+    # camera_offset.y = max(0 + SCREEN_HEIGHT // 2, min(WORLD_HEIGHT - SCREEN_HEIGHT // 2, player_pos.y - SCREEN_HEIGHT // 2))
 
-    camera_offset.x = max(0 + SCREEN_WIDTH // 2, min(WORLD_WIDTH - SCREEN_WIDTH // 2, player_pos.x - SCREEN_WIDTH // 2))
-    camera_offset.y = max(0 + SCREEN_HEIGHT // 2, min(WORLD_HEIGHT - SCREEN_HEIGHT // 2, player_pos.y - SCREEN_HEIGHT // 2))
-
-    # Adjust camera offset
-    if player_pos.x < SCREEN_WIDTH // 2:
-        camera_offset.x = 0
-    elif player_pos.x > WORLD_WIDTH - SCREEN_WIDTH // 2:
-        camera_offset.x = WORLD_WIDTH - SCREEN_WIDTH
-    else:
-        camera_offset.x = player_pos.x - SCREEN_WIDTH // 2
-
-    if player_pos.y < SCREEN_HEIGHT // 2:
-        camera_offset.y = 0
-    elif player_pos.y > WORLD_HEIGHT - SCREEN_HEIGHT // 2:
-        camera_offset.y = WORLD_HEIGHT - SCREEN_HEIGHT
-    else:
-        camera_offset.y = player_pos.y - SCREEN_HEIGHT // 2
+    # if player_pos.x < SCREEN_WIDTH // 2:
+    #     camera_offset.x = 0
+    # elif player_pos.x > WORLD_WIDTH - SCREEN_WIDTH // 2:
+    #     camera_offset.x = WORLD_WIDTH - SCREEN_WIDTH
+    # else:
+    #     camera_offset.x = player_pos.x - SCREEN_WIDTH // 2
+    #
+    # if player_pos.y < SCREEN_HEIGHT // 2:
+    #     camera_offset.y = 0
+    # elif player_pos.y > WORLD_HEIGHT - SCREEN_HEIGHT // 2:
+    #     camera_offset.y = WORLD_HEIGHT - SCREEN_HEIGHT
+    # else:
+    #     camera_offset.y = player_pos.y - SCREEN_HEIGHT // 2
 
     # Clear the screen
     screen.fill("purple")
 
     # Render the world
-    screen.blit(world_surface, (-camera_offset.x, -camera_offset.y))
+    screen.blit(world_surface, (-camera.get_offset().x, -camera.get_offset().y))
 
     # Draw objects in the world (trees)
     for tree in trees:
         pygame.draw.rect(world_surface, "brown", tree)
         pygame.draw.ellipse(world_surface, "darkgreen", tree.inflate(50, 50))
 
+    camera.move(player_pos)
+
     # Render player
-    player_screen_x = player_pos.x - camera_offset.x
-    player_screen_y = player_pos.y - camera_offset.y
+    player_screen_x = player_pos.x - camera.get_offset().x
+    player_screen_y = player_pos.y - camera.get_offset().y
     pygame.draw.circle(screen, "red", (player_screen_x, player_screen_y), playerSize)
 
     # Render text
