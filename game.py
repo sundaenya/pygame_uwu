@@ -99,7 +99,12 @@ def main():
             
             # Randomly spawn enemies
             elif event.type == SPAWN_ENEMY and not game_over:
+
                 spawn_x, spawn_y = randrange(world_width), randrange(world_height)
+
+                while player.rect.collidepoint(spawn_x, spawn_y):
+                    spawn_x, spawn_y = randrange(world_width), randrange(world_height)
+
                 enemy = Enemy((spawn_x, spawn_y))
                 enemies.add(enemy)
                 all_sprites.add(enemy)
