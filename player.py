@@ -32,7 +32,7 @@ class Player(pygame.sprite.Sprite):
     def get_closest_enemy(self, enemies):
         pos = pygame.math.Vector2(self.rect.x, self.rect.y)
         try:
-            return min([e for e in enemies], key=lambda e: pos.distance_to(pygame.math.Vector2(e.rect.x, e.rect.y)))
+            return min([e for e in enemies], key=lambda e: pos.distance_to(pygame.math.Vector2(e.rect.centerx, e.rect.centery)))
         except:
             return None
         
