@@ -9,6 +9,7 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.speed = 5
+        self.health = 100
 
 
     def update(self, keys):
@@ -27,6 +28,9 @@ class Player(pygame.sprite.Sprite):
 
         self.rect.x = max(0, min(world_width - self.size, self.rect.x))
         self.rect.y = max(0, min(world_height - self.size, self.rect.y))
+
+    def damage(self, amount):
+        self.health -= amount
 
     def get_closest_enemy(self, enemies):
         pos = pygame.math.Vector2(self.rect.x, self.rect.y)
