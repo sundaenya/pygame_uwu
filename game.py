@@ -1,12 +1,9 @@
 import pygame
 import sys
-<<<<<<< HEAD
 from tiles import *
 from spritesheet import *
-=======
 import random
 import sound
->>>>>>> origin/main
 from player import Player
 from enemy import Enemy
 from bullet import Bullet
@@ -29,6 +26,9 @@ pygame.display.set_caption('Amelia Earheart Simulator')
 # Define colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+
 
 camera = Camera()
 
@@ -39,9 +39,6 @@ font = pygame.font.SysFont(None, 55)
 canvas = pygame.Surface((world_width, world_height))
 spritesheet = Spritesheet('grassTileset.png')
 map1 = TileMap('data\grass.csv', spritesheet)
-
-
-
 world_surface = pygame.Surface((world_width, world_height))
 world_surface.fill("green")
 
@@ -50,7 +47,22 @@ def show_message(screen, message, color, x, y):
     text = font.render(message, True, color)
     screen.blit(text, (x, y))
 
-# Main game loop
+def draw_health_bar(surface, x, y, current_health, max_health, bar_width, bar_height):
+    # Ensure health doesn't go below 0
+    current_health = max(0, current_health)
+
+    # Calculate health bar fill percentage
+    health_percentage = current_health / max_health
+
+    # Outline of the health bar
+    pygame.draw.rect(surface, WHITE, (x, y, bar_width, bar_height), 2)
+
+    # Red background
+    pygame.draw.rect(surface, RED, (x, y, bar_width, bar_height))
+
+    # Green foreground (health remaining)
+    pygame.draw.rect(surface, GREEN, (x, y, bar_width * health_percentage, bar_height))
+
 # Main game loop
 def main():
     clock = pygame.time.Clock()
@@ -65,6 +77,7 @@ def main():
     enemies = pygame.sprite.Group(enemy)
 
     game_over = False
+    hitbox = False
 
     FIRE  = pygame.USEREVENT + 1
     pygame.time.set_timer(FIRE, 250)
@@ -79,6 +92,7 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+
             
             elif event.type == FIRE:
                 try:
@@ -99,11 +113,16 @@ def main():
         if not game_over:
             keys = pygame.key.get_pressed()
             player.update(keys)
+            if keys[pygame.K_o]:
+                hitbox = not hitbox
 
             for e in enemies:
                 e.update(player)
                 if check_collision(player, e):
-                    game_over = True
+                    player.damage(1)
+
+                    if player.health == 0:
+                        game_over = True
             bullets.update()
 
             check_bullet_collisions(enemies, bullets)
@@ -121,8 +140,10 @@ def main():
             offset_pos = sprite.rect.topleft - camera.camera_offset
             screen.blit(sprite.image, offset_pos)
 
-            pygame.draw.rect(screen, "red",pygame.Rect(offset_pos.x, offset_pos.y, sprite.rect.width, sprite.rect.height),width=2)
+            if hitbox:
+                pygame.draw.rect(screen, "red",pygame.Rect(offset_pos.x, offset_pos.y, sprite.rect.width, sprite.rect.height), width=2)
 
+        draw_health_bar(screen, 50, 50, player.health, 100, 200, 20)
 
         # Display 'You Lose' message if game is over
         if game_over:
@@ -132,7 +153,7 @@ def main():
         pygame.display.flip()
 
         # Cap the frame rate
-        clock.tick(120)
+        clock.tick(60)
 
 # Run the game
 if __name__ == "__main__":
