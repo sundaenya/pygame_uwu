@@ -4,17 +4,16 @@ from enums import GameSettings
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.height = 100
-        self.width = 100
-        self.image = pygame.transform.scale(pygame.image.load('./data/Kibty.png'), (self.height, self.width))
+        self.size = GameSettings.PLAYER_SIZE
+        self.image = pygame.transform.scale(pygame.image.load('./data/Kibty.png'), (self.size, self.size))
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
         self.speed = 5
 
 
     def update(self, keys):
-        world_width = GameSettings.WORLD_WIDTH.value
-        world_height = GameSettings.WORLD_HEIGHT.value
+        world_width = GameSettings.WORLD_WIDTH 
+        world_height = GameSettings.WORLD_HEIGHT 
 
         if keys[pygame.K_a]:
             self.rect.x -= self.speed
@@ -26,8 +25,8 @@ class Player(pygame.sprite.Sprite):
             self.rect.y += self.speed
 
 
-        self.rect.x = max(0, min(world_width - self.width, self.rect.x))
-        self.rect.y = max(0, min(world_height - self.height, self.rect.y))
+        self.rect.x = max(0, min(world_width - self.size, self.rect.x))
+        self.rect.y = max(0, min(world_height - self.size, self.rect.y))
 
     def get_closest_enemy(self, enemies):
         pos = pygame.math.Vector2(self.rect.x, self.rect.y)

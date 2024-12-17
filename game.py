@@ -14,10 +14,10 @@ pygame.init()
 
 # Set up the game window
 
-screen_width = GameSettings.SCREEN_WIDTH.value
-screen_height = GameSettings.SCREEN_HEIGHT.value
-world_width = GameSettings.WORLD_WIDTH.value
-world_height = GameSettings.WORLD_HEIGHT.WORLD_HEIGHT.value
+screen_width = GameSettings.SCREEN_WIDTH 
+screen_height = GameSettings.SCREEN_HEIGHT 
+world_width = GameSettings.WORLD_WIDTH 
+world_height = GameSettings.WORLD_HEIGHT
 screen = pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREEN)
 pygame.display.set_caption('Amelia Earheart Simulator')
 
@@ -119,8 +119,7 @@ def main():
             offset_pos = sprite.rect.topleft - camera.camera_offset
             screen.blit(sprite.image, offset_pos)
 
-            pygame.draw.rect(screen, "red",
-                             pygame.Rect(offset_pos.x, offset_pos.y, sprite.rect.width, sprite.rect.height),width=2)
+            pygame.draw.rect(screen, "red",pygame.Rect(offset_pos.x, offset_pos.y, sprite.rect.width, sprite.rect.height),width=2)
 
 
         # Display 'You Lose' message if game is over
@@ -131,7 +130,7 @@ def main():
         pygame.display.flip()
 
         # Cap the frame rate
-        clock.tick(60)
+        clock.tick(120)
 
 # Run the game
 if __name__ == "__main__":
