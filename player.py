@@ -6,7 +6,7 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
         self.height = 100
         self.width = 100
-        self.image = pygame.transform.scale(pygame.image.load('../data/Kibty.png'), (self.height, self.width))
+        self.image = pygame.transform.scale(pygame.image.load('./data/Kibty.png'), (self.height, self.width))
         self.rect = self.image.get_rect()
         self.rect.topleft = (x, y)
         self.speed = 5

@@ -5,7 +5,7 @@ import os
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__()
-        self.image = pygame.transform.scale(pygame.image.load('../data/crab.png'), (100,100))  # Red color
+        self.image = pygame.transform.scale(pygame.image.load('./data/crab.png'), (100,100))  # Red color
         self.rect = self.image.get_rect()
         self.rect.topleft = pos
         self.speed = 2
