@@ -1,23 +1,37 @@
 import pygame
 import sys
+import os
 from player import Player
 from enemy import Enemy
+from bullet import Bullet
+from camera import Camera
+from enums import GameSettings
+from collision import check_collision, check_bullet_collisions
 
 # Initialize Pygame
 pygame.init()
 
 # Set up the game window
-screen_width = 800
-screen_height = 600
-screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption('Roguelike Game')
+
+screen_width = GameSettings.SCREEN_WIDTH.value
+screen_height = GameSettings.SCREEN_HEIGHT.value
+world_width = GameSettings.WORLD_WIDTH.value
+world_height = GameSettings.WORLD_HEIGHT.WORLD_HEIGHT.value
+screen = pygame.display.set_mode((screen_width, screen_height), pygame.NOFRAME)
+pygame.display.set_caption('Amelia Earheart Simulator')
+
 
 # Define colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 
+camera = Camera()
+
 # Set up font
 font = pygame.font.SysFont(None, 55)
+
+world_surface = pygame.Surface((world_width, world_height))
+world_surface.fill("green")
 
 # Function to display 'You Lose' text
 def show_message(screen, message, color, x, y):
@@ -25,20 +39,27 @@ def show_message(screen, message, color, x, y):
     screen.blit(text, (x, y))
 
 # Main game loop
+# Main game loop
 def main():
     clock = pygame.time.Clock()
-    
+
     # Create a player instance
     player = Player(screen_width // 2, screen_height // 2)
     
     # Create an enemy instance
-    enemy = Enemy(screen_width // 4, screen_height // 4)
+    enemy = Enemy((screen_width // 4, screen_height // 4))
     
+
     all_sprites = pygame.sprite.Group()
-    all_sprites.add(player)
-    all_sprites.add(enemy)
-    
+    all_sprites.add(player, enemy)
+
+    bullets = pygame.sprite.Group()
+    enemies = pygame.sprite.Group(enemy)
+
     game_over = False
+
+    FIRE  = pygame.USEREVENT + 1
+    pygame.time.set_timer(FIRE, 250)
 
     # Game loop
     while True:
@@ -47,22 +68,48 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            
+            elif event.type == FIRE:
+                try:
+                    target_x = player.get_closest_enemy(enemies).get_pos() + camera.get_offset().x
+                    target_y = player.get_closest_enemy(enemies).get_pos() + camera.get_offset().y
+                except:
+                    target_x, target_y = player.rect.centerx, player.rect.centery - 1
 
+                bullet = Bullet(player.rect.centerx, player.rect.centery, target_x, target_y)
+                all_sprites.add(bullet)
+                bullets.add(bullet)
+
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                enemy = (Enemy(pygame.mouse.get_pos()))
+                enemies.add(enemy)
+                all_sprites.add(enemy)
+            
         if not game_over:
             # Update game state
             keys = pygame.key.get_pressed()
             player.update(keys)
-            enemy.update(player)
 
-            # Check for collisions
-            if pygame.sprite.collide_rect(player, enemy):
-                game_over = True
+            for e in enemies:
+                e.update(player)
+                if check_collision(player, e):
+                    game_over = True
+            bullets.update()
 
-        # Clear the screen
-        screen.fill(BLACK)
+            # Check for bullet-enemy collisions
+            # check_bullet_collisions(enemies, bullets)
 
-        # Render the game
-        all_sprites.draw(screen)
+            camera.move(player.rect)
+
+        screen.blit(world_surface, (-camera.camera_offset.x, -camera.camera_offset.y))
+
+        # Render all game objects relative to the camera offset
+        for sprite in all_sprites:
+            offset_pos = sprite.rect.topleft - camera.camera_offset
+            screen.blit(sprite.image, offset_pos)
+
+            pygame.draw.rect(screen, "red",
+                             pygame.Rect(offset_pos.x, offset_pos.y, sprite.rect.width, sprite.rect.height),width=2)
 
         # Display 'You Lose' message if game is over
         if game_over:
@@ -73,6 +120,7 @@ def main():
 
         # Cap the frame rate
         clock.tick(60)
+
 
 # Run the game
 if __name__ == "__main__":
