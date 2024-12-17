@@ -119,7 +119,7 @@ def main():
                 mouse_x, mouse_y = pygame.mouse.get_pos()
                 world_x = mouse_x + camera.camera_offset.x
                 world_y = mouse_y + camera.camera_offset.y
-                enemy = Enemy((world_x, world_y))
+                enemy = Enemy((world_x, world_y), random.choice(('basic', 'heavy')))
                 enemies.add(enemy)
                 all_sprites.add(enemy)
             
