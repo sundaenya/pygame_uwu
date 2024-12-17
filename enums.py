@@ -9,8 +9,8 @@ class Direction(Enum):
 
 
 class GameSettings(Enum):
-    SCREEN_WIDTH = 1280
-    SCREEN_HEIGHT = 720
-    WORLD_WIDTH = 2000
-    WORLD_HEIGHT = 2000
+    SCREEN_WIDTH = 1920
+    SCREEN_HEIGHT = 1080
+    WORLD_WIDTH = 5000
+    WORLD_HEIGHT = 5000
     PLAYER_SIZE = 100

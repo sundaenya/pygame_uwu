@@ -12,12 +12,14 @@ from collision import check_collision, check_bullet_collisions
 pygame.init()
 
 # Set up the game window
+
 screen_width = GameSettings.SCREEN_WIDTH.value
 screen_height = GameSettings.SCREEN_HEIGHT.value
 world_width = GameSettings.WORLD_WIDTH.value
 world_height = GameSettings.WORLD_HEIGHT.WORLD_HEIGHT.value
-screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption('Roguelike Game')
+screen = pygame.display.set_mode((screen_width, screen_height), pygame.NOFRAME)
+pygame.display.set_caption('Amelia Earheart Simulator')
+
 
 # Define colors
 BLACK = (0, 0, 0)
@@ -42,12 +44,12 @@ def main():
     clock = pygame.time.Clock()
 
     # Create a player instance
-    player = Player(world_width // 2, world_height // 2)
+    player = Player(screen_width // 2, screen_height // 2)
+    
+    # Create an enemy instance
+    enemy = Enemy((screen_width // 4, screen_height // 4))
+    
 
-    # Create enemies
-    enemy = Enemy(200, 150)  # Placed in the world, not relative to the screen
-
-    # Sprite groups
     all_sprites = pygame.sprite.Group()
     all_sprites.add(player, enemy)
 
@@ -56,6 +58,9 @@ def main():
 
     game_over = False
 
+    FIRE  = pygame.USEREVENT + 1
+    pygame.time.set_timer(FIRE, 250)
+
     # Game loop
     while True:
         # Handle events
@@ -63,17 +68,23 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                # Get the target position adjusted by the camera's offset
-                target_x, target_y = pygame.mouse.get_pos()
-                target_x += camera.get_offset().x
-                target_y += camera.get_offset().y
+            
+            elif event.type == FIRE:
+                try:
+                    target_x = player.get_closest_enemy(enemies).get_pos() + camera.get_offset().x
+                    target_y = player.get_closest_enemy(enemies).get_pos() + camera.get_offset().y
+                except:
+                    target_x, target_y = player.rect.centerx, player.rect.centery - 1
 
-                # Create a bullet and adjust its position
                 bullet = Bullet(player.rect.centerx, player.rect.centery, target_x, target_y)
                 all_sprites.add(bullet)
                 bullets.add(bullet)
 
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                enemy = (Enemy(pygame.mouse.get_pos()))
+                enemies.add(enemy)
+                all_sprites.add(enemy)
+            
         if not game_over:
             # Update game state
             keys = pygame.key.get_pressed()
