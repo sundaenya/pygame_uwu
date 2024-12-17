@@ -18,7 +18,7 @@ screen_width = GameSettings.SCREEN_WIDTH.value
 screen_height = GameSettings.SCREEN_HEIGHT.value
 world_width = GameSettings.WORLD_WIDTH.value
 world_height = GameSettings.WORLD_HEIGHT.WORLD_HEIGHT.value
-screen = pygame.display.set_mode((screen_width, screen_height), pygame.NOFRAME)
+screen = pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREEN)
 pygame.display.set_caption('Amelia Earheart Simulator')
 
 
