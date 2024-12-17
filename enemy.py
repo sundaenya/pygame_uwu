@@ -22,4 +22,4 @@ class Enemy(pygame.sprite.Sprite):
         self.kill()
     
     def get_pos(self):
-        return self.rect.x, self.rect.y
+        return self.rect.centerx, self.rect.centery
