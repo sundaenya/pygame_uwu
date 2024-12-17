@@ -88,7 +88,7 @@ def main():
     hitbox = False
 
     FIRE  = pygame.USEREVENT + 1
-    pygame.time.set_timer(FIRE, 250)
+    pygame.time.set_timer(FIRE, 25)
 
     SPAWN_ENEMY = pygame.USEREVENT + 2  # Define a new event
     pygame.time.set_timer(SPAWN_ENEMY, 100) 
@@ -131,7 +131,7 @@ def main():
                 while player.rect.collidepoint(spawn_x, spawn_y):
                     spawn_x, spawn_y = randrange(world_width), randrange(world_height)
 
-                enemy = Enemy((spawn_x, spawn_y))
+                enemy = Enemy((spawn_x, spawn_y), random.choice(('basic', 'heavy')))
                 enemies.add(enemy)
                 all_sprites.add(enemy)
             
