@@ -1,6 +1,7 @@
 import pygame
 import sys
-import os
+from tiles import *
+from spritesheet import *
 from player import Player
 from enemy import Enemy
 from bullet import Bullet
@@ -29,6 +30,13 @@ camera = Camera()
 
 # Set up font
 font = pygame.font.SysFont(None, 55)
+
+
+canvas = pygame.Surface((world_width, world_height))
+spritesheet = Spritesheet('grassTileset.png')
+map1 = TileMap('data\grass.csv', spritesheet)
+
+
 
 world_surface = pygame.Surface((world_width, world_height))
 world_surface.fill("green")
@@ -98,9 +106,13 @@ def main():
             # Check for bullet-enemy collisions
             check_bullet_collisions(enemies, bullets)
 
-            camera.move(player.rect)
-
         screen.blit(world_surface, (-camera.camera_offset.x, -camera.camera_offset.y))
+
+        map1.draw_map(canvas)
+        camera.move(player.rect)
+        canvas.fill((0, 180, 240)) # Fills the entire screen with light blue
+        map1.draw_map(canvas)
+        screen.blit(canvas, (-camera.camera_offset.x, -camera.camera_offset.y))
 
         # Render all game objects relative to the camera offset
         for sprite in all_sprites:
@@ -109,6 +121,7 @@ def main():
 
             pygame.draw.rect(screen, "red",
                              pygame.Rect(offset_pos.x, offset_pos.y, sprite.rect.width, sprite.rect.height),width=2)
+
 
         # Display 'You Lose' message if game is over
         if game_over:
@@ -119,7 +132,6 @@ def main():
 
         # Cap the frame rate
         clock.tick(60)
-
 
 # Run the game
 if __name__ == "__main__":
