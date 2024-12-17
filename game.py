@@ -1,21 +1,23 @@
 import pygame
 import sys
-<<<<<<< HEAD
 from tiles import *
 from spritesheet import *
-=======
 import random
 import sound
->>>>>>> origin/main
 from player import Player
 from enemy import Enemy
 from bullet import Bullet
 from camera import Camera
 from enums import GameSettings
 from collision import check_collision, check_bullet_collisions
+from random import randrange  
 
 # Initialize Pygame
 pygame.init()
+
+os.chdir(os.path.dirname(__file__))
+data_path = os.path.join("data", "Kibty.png")
+
 # Set up the game window
 
 screen_width = GameSettings.SCREEN_WIDTH 
@@ -25,10 +27,15 @@ world_height = GameSettings.WORLD_HEIGHT
 screen = pygame.display.set_mode((screen_width, screen_height), pygame.NOFRAME)
 pygame.display.set_caption('Amelia Earheart Simulator')
 
+crab = pygame.image.load(data_path)
+
 
 # Define colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+
 
 camera = Camera()
 
@@ -39,9 +46,6 @@ font = pygame.font.SysFont(None, 55)
 canvas = pygame.Surface((world_width, world_height))
 spritesheet = Spritesheet('grassTileset.png')
 map1 = TileMap('data\grass.csv', spritesheet)
-
-
-
 world_surface = pygame.Surface((world_width, world_height))
 world_surface.fill("green")
 
@@ -50,11 +54,27 @@ def show_message(screen, message, color, x, y):
     text = font.render(message, True, color)
     screen.blit(text, (x, y))
 
-# Main game loop
+def draw_health_bar(surface, x, y, current_health, max_health, bar_width, bar_height):
+    # Ensure health doesn't go below 0
+    current_health = max(0, current_health)
+
+    # Calculate health bar fill percentage
+    health_percentage = current_health / max_health
+
+    # Outline of the health bar
+    pygame.draw.rect(surface, WHITE, (x, y, bar_width, bar_height), 2)
+
+    # Red background
+    pygame.draw.rect(surface, RED, (x, y, bar_width, bar_height))
+
+    # Green foreground (health remaining)
+    pygame.draw.rect(surface, GREEN, (x, y, bar_width * health_percentage, bar_height))
+
 # Main game loop
 def main():
     clock = pygame.time.Clock()
     sound.bg_music()
+
     player = Player(screen_width // 2, screen_height // 2)
     enemy = Enemy((1000, 1000), 'basic')
 
@@ -65,20 +85,24 @@ def main():
     enemies = pygame.sprite.Group(enemy)
 
     game_over = False
+    hitbox = False
 
     FIRE  = pygame.USEREVENT + 1
-    pygame.time.set_timer(FIRE, 250)
+    pygame.time.set_timer(FIRE, 25)
 
-    SPAWN = pygame.USEREVENT +2
-    pygame.time.set_timer(SPAWN, 1500)
+    SPAWN_ENEMY = pygame.USEREVENT + 2  # Define a new event
+    pygame.time.set_timer(SPAWN_ENEMY, 100) 
 
     # Game loop
-    while True:
+    running = True
+    while running:
         # Handle events
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+
             
             elif event.type == FIRE:
                 try:
@@ -90,8 +114,24 @@ def main():
                 all_sprites.add(bullet)
                 bullets.add(bullet)
 
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                enemy = Enemy(tuple(map(sum, zip(pygame.mouse.get_pos(), camera.get_offset()))), random.choice(('basic', 'heavy')))
+
+            elif event.type == pygame.MOUSEBUTTONDOWN and not game_over:
+                mouse_x, mouse_y = pygame.mouse.get_pos()
+                world_x = mouse_x + camera.camera_offset.x
+                world_y = mouse_y + camera.camera_offset.y
+                enemy = Enemy((world_x, world_y))
+                enemies.add(enemy)
+                all_sprites.add(enemy)
+            
+            # Randomly spawn enemies
+            elif event.type == SPAWN_ENEMY and not game_over:
+
+                spawn_x, spawn_y = randrange(world_width), randrange(world_height)
+
+                while player.rect.collidepoint(spawn_x, spawn_y):
+                    spawn_x, spawn_y = randrange(world_width), randrange(world_height)
+
+                enemy = Enemy((spawn_x, spawn_y), random.choice(('basic', 'heavy')))
                 enemies.add(enemy)
                 all_sprites.add(enemy)
             
@@ -99,11 +139,16 @@ def main():
         if not game_over:
             keys = pygame.key.get_pressed()
             player.update(keys)
+            if keys[pygame.K_o]:
+                hitbox = not hitbox
 
             for e in enemies:
                 e.update(player)
                 if check_collision(player, e):
-                    game_over = True
+                    player.damage(1)
+
+                    if player.health == 0:
+                        game_over = True
             bullets.update()
 
             check_bullet_collisions(enemies, bullets)
@@ -121,18 +166,33 @@ def main():
             offset_pos = sprite.rect.topleft - camera.camera_offset
             screen.blit(sprite.image, offset_pos)
 
-            pygame.draw.rect(screen, "red",pygame.Rect(offset_pos.x, offset_pos.y, sprite.rect.width, sprite.rect.height),width=2)
 
+            if hitbox:
+                pygame.draw.rect(screen, "red",pygame.Rect(offset_pos.x, offset_pos.y, sprite.rect.width, sprite.rect.height), width=2)
+
+        draw_health_bar(screen, 50, 50, player.health, 100, 200, 20)
+
+        # Display 'You Lose' message if game is over
+
+        pygame.draw.rect(screen, "red",
+                             pygame.Rect(offset_pos.x, offset_pos.y, sprite.rect.width, sprite.rect.height),width=2)
+            
 
         # Display 'You Lose' message if game is over
         if game_over:
-            show_message(screen, 'You Lose', WHITE, screen_width / 2, screen_height / 2)
+            show_message(screen, 'You Lose', WHITE, screen_width // 2 - 100, screen_height // 2 - 50)
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_ESCAPE]:
+                running = False
+                pygame.quit()
+            if keys[pygame.K_SPACE]:
+                main()          
 
         # Update the display
         pygame.display.flip()
 
         # Cap the frame rate
-        clock.tick(120)
+        clock.tick(60)
 
 # Run the game
 if __name__ == "__main__":
