@@ -1,7 +1,12 @@
 import pygame
 import sys
+<<<<<<< HEAD
 from tiles import *
 from spritesheet import *
+=======
+import random
+import sound
+>>>>>>> origin/main
 from player import Player
 from enemy import Enemy
 from bullet import Bullet
@@ -11,7 +16,6 @@ from collision import check_collision, check_bullet_collisions
 
 # Initialize Pygame
 pygame.init()
-
 # Set up the game window
 
 screen_width = GameSettings.SCREEN_WIDTH 
@@ -50,13 +54,9 @@ def show_message(screen, message, color, x, y):
 # Main game loop
 def main():
     clock = pygame.time.Clock()
-
-    # Create a player instance
+    sound.bg_music()
     player = Player(screen_width // 2, screen_height // 2)
-    
-    # Create an enemy instance
-    enemy = Enemy((screen_width // 4, screen_height // 4))
-    
+    enemy = Enemy((1000, 1000), 'basic')
 
     all_sprites = pygame.sprite.Group()
     all_sprites.add(player, enemy)
@@ -68,6 +68,9 @@ def main():
 
     FIRE  = pygame.USEREVENT + 1
     pygame.time.set_timer(FIRE, 250)
+
+    SPAWN = pygame.USEREVENT +2
+    pygame.time.set_timer(SPAWN, 1500)
 
     # Game loop
     while True:
@@ -88,12 +91,12 @@ def main():
                 bullets.add(bullet)
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                enemy = Enemy(tuple(map(sum, zip(pygame.mouse.get_pos(), camera.get_offset()))))
+                enemy = Enemy(tuple(map(sum, zip(pygame.mouse.get_pos(), camera.get_offset()))), random.choice(('basic', 'heavy')))
                 enemies.add(enemy)
                 all_sprites.add(enemy)
             
+            
         if not game_over:
-            # Update game state
             keys = pygame.key.get_pressed()
             player.update(keys)
 
@@ -103,7 +106,6 @@ def main():
                     game_over = True
             bullets.update()
 
-            # Check for bullet-enemy collisions
             check_bullet_collisions(enemies, bullets)
 
         screen.blit(world_surface, (-camera.camera_offset.x, -camera.camera_offset.y))
@@ -124,7 +126,7 @@ def main():
 
         # Display 'You Lose' message if game is over
         if game_over:
-            show_message(screen, 'You Lose', WHITE, screen_width // 2 - 100, screen_height // 2 - 50)
+            show_message(screen, 'You Lose', WHITE, screen_width / 2, screen_height / 2)
 
         # Update the display
         pygame.display.flip()

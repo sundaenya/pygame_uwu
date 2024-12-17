@@ -7,7 +7,7 @@ class Player(pygame.sprite.Sprite):
         self.size = GameSettings.PLAYER_SIZE
         self.image = pygame.transform.scale(pygame.image.load('./data/Kibty.png'), (self.size, self.size))
         self.rect = self.image.get_rect()
-        self.rect.topleft = (x, y)
+        self.rect.center = (x, y)
         self.speed = 5
 
 
