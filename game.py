@@ -1,6 +1,7 @@
 import pygame
 import sys
 import os
+import sound
 from player import Player
 from enemy import Enemy
 from bullet import Bullet
@@ -10,7 +11,6 @@ from collision import check_collision, check_bullet_collisions
 
 # Initialize Pygame
 pygame.init()
-
 # Set up the game window
 
 screen_width = GameSettings.SCREEN_WIDTH.value
@@ -43,6 +43,7 @@ def show_message(screen, message, color, x, y):
 def main():
     clock = pygame.time.Clock()
 
+    sound.bg_music()
     # Create a player instance
     player = Player(screen_width // 2, screen_height // 2)
     

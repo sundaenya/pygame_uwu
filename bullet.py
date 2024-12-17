@@ -1,6 +1,7 @@
 import pygame
 import math
 import enums
+import sound
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y, target_x, target_y):
@@ -10,7 +11,7 @@ class Bullet(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.speed = 10
-
+        sound.play('data/pew.wav', 0.2)
         # Calculate direction
         angle = math.atan2(target_y - y, target_x - x)
         self.dx = math.cos(angle) * self.speed
