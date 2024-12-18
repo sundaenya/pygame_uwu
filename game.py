@@ -59,6 +59,32 @@ world_surface.fill("green")
 cell_size = 200  # Adjust cell size as needed
 spatial_grid = SpatialGrid(cell_size, world_width, world_height)
 
+tree_sprite = pygame.image.load('data/corrupted_tree.png')
+rock_sprite = pygame.image.load('data/small_rock.png').convert_alpha()
+
+# Scale sprites if needed
+tree_sprite = pygame.transform.scale(tree_sprite, (200, 200))
+rock_sprite = pygame.transform.scale(rock_sprite, (100, 100))
+static_objects = pygame.sprite.Group()
+
+# Static objects class
+class StaticObject(pygame.sprite.Sprite):
+    def __init__(self, image, pos):
+        super().__init__()
+        self.image = image
+        self.rect = self.image.get_rect(topleft=pos)
+
+for _ in range(10):  # Add 10 trees
+    x = random.randint(100, world_width - 100)
+    y = random.randint(100, world_height - 100)
+    static_objects.add(StaticObject(tree_sprite, (x, y)))
+
+for _ in range(10):  # Add 10 rocks
+    x = random.randint(100, world_width - 100)
+    y = random.randint(100, world_height - 100)
+    static_objects.add(StaticObject(rock_sprite, (x, y)))
+
+
 # Function to display 'You Lose' text
 def show_message(screen, message, color, x, y):
     text = font.render(message, True, color)
@@ -190,6 +216,9 @@ def main():
         pygame.draw.rect(screen, "red",
                              pygame.Rect(offset_pos.x, offset_pos.y, sprite.rect.width, sprite.rect.height),width=2)
 
+        for obj in static_objects:
+            offset_pos = obj.rect.topleft - camera.get_offset()
+            screen.blit(obj.image, offset_pos)
 
         # Display 'You Lose' message if game is over
         if game_over:
