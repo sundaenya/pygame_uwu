@@ -1,22 +1,29 @@
 import pygame
-import render
+import math
+from bullet import Bullet
 
 class Beam(pygame.sprite.Sprite):
     def __init__(self, player, target):
         super().__init__()
         self.player = player
         self.target = target
-        self.lifetime = 30  # Lifetime of the beam in frames
-        self.image = pygame.Surface((1, 1), pygame.SRCALPHA)
-        self.rect = self.image.get_rect()
-        self.update_rect()
+        self.bullets = pygame.sprite.Group()
+        self.create_beam()
+
+    def create_beam(self):
+        player_center = self.player.rect.center
+        target_center = self.target.rect.center
+        distance = math.hypot(target_center[0] - player_center[0], target_center[1] - player_center[1])
+        steps = int(distance / 5)  # Adjust spacing between circles here
+        for step in range(steps):
+            x = player_center[0] + (target_center[0] - player_center[0]) * (step / steps)
+            y = player_center[1] + (target_center[1] - player_center[1]) * (step / steps)
+            bullet = Bullet(x, y, x + self.target.rect.width, y + self.target.rect.height)
+            bullet.speed_x = bullet.speed_y = 0  # Make bullets stationary
+            self.bullets.add(bullet)
 
     def update(self):
-        self.lifetime -= 1
-        if self.lifetime <= 0:
+        self.bullets.update()
+        # Remove the beam after a certain lifetime
+        if len(self.bullets) == 0:
             self.kill()
-        self.update_rect()
-
-    def update_rect(self):
-        self.rect = pygame.Rect(player_center, (1, 1)).union(pygame.Rect(target_center, (1, 1)))
-        pygame.draw.line(render.screen, (0,0,255), player_center, target_center)

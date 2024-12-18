@@ -83,9 +83,9 @@ def main():
     game_over = False
 
     FIRE = pygame.USEREVENT + 1
-    pygame.time.set_timer(FIRE, 2000)
+    pygame.time.set_timer(FIRE, 200)
 
-    SPAWN_ENEMY = pygame.USEREVENT + 2  # Define a new event
+    SPAWN_ENEMY = pygame.USEREVENT + 2
     pygame.time.set_timer(SPAWN_ENEMY, 100)
 
     wisp = Wisp(player, 250)
@@ -103,16 +103,8 @@ def main():
 
             elif event.type == FIRE:
                 closest_enemy = player.get_closest_enemy(render.enemies)
-                try:
-                    if closest_enemy:
-                        target_x, target_y = closest_enemy.get_pos()
-                    else:
-                        target_x, target_y = player.rect.centerx, player.rect.centery - 1
-                        closest_enemy = (target_x, target_y)
-                except:
-                    target_x, target_y = player.rect.centerx, player.rect.centery - 1
 
-                bullet = Bullet(player.rect.centerx, player.rect.centery, target_x, target_y)
+                bullet = Bullet(player, closest_enemy)
                 render.add_to_group('bullets', bullet)
 
             elif event.type == pygame.MOUSEBUTTONDOWN and not game_over:
