@@ -41,7 +41,8 @@ def show_message(message, color, x, y):
     screen.blit(text, (x, y))
 
 
-def draw_health_bar(x, y, current_health, max_health, bar_width, bar_height):
+def draw_health_bar(x, y, current_health, bar_width, bar_height):
+    max_health = GameSettings.PLAYER_HEALTH
     current_health = max(0, current_health)
     health_percentage = current_health / max_health
     pygame.draw.rect(screen, WHITE, (x, y, bar_width, bar_height), 2)
@@ -64,10 +65,7 @@ def add_to_group(group : Literal['bullets', 'pbullets', 'enemies', 'static_objec
     all_sprites.add(sprite)
 
 
-def render(camera):
-    # Render world
-    screen.blit(world_surface, (-camera.camera_offset.x, -camera.camera_offset.y))
-
+def render(camera, player):
     screen.blit(canvas, (-camera.get_offset().x, -camera.get_offset().y))
 
     for sprite in all_sprites:
@@ -77,6 +75,8 @@ def render(camera):
     for obj in static_objects:
         offset_pos = obj.rect.topleft - camera.get_offset()
         screen.blit(obj.image, offset_pos)
+
+    draw_health_bar(50, 50, player.health, 200, 20)
 
     # Update the display
     pygame.display.flip()

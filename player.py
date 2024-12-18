@@ -12,13 +12,11 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.speed = 15
-        self.health = 100
+        self.health = 1000
         self.animate()
 
     def load_images(self):
         self.frames = { 'left': [], 'right': [], 'up': [], 'down': []}
-
-
 
     def update(self, keys):
         world_width = GameSettings.WORLD_WIDTH 
@@ -32,7 +30,6 @@ class Player(pygame.sprite.Sprite):
             self.rect.y -= self.speed
         if keys[pygame.K_s]:
             self.rect.y += self.speed
-
 
         self.rect.x = max(0, min(world_width - self.size, self.rect.x))
         self.rect.y = max(0, min(world_height - self.size, self.rect.y))
