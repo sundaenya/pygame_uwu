@@ -15,6 +15,7 @@ GREEN = (0, 255, 0)
 
 pygame.init()
 bullets = pygame.sprite.Group()
+pbullets = pygame.sprite.Group()
 enemies = pygame.sprite.Group()
 static_objects = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
@@ -28,7 +29,7 @@ world_height = GameSettings.WORLD_HEIGHT
 screen = pygame.display.set_mode((screen_width, screen_height), pygame.NOFRAME)
 pygame.display.set_caption('Amelia Earheart Simulator')
 crab = pygame.image.load('data/Kibty.png')
-canvas = pygame.Surface((world_width, world_height))
+# canvas = pygame.Surface((world_width, world_height))
 spritesheet = Spritesheet('grassTileset.png')
 canvas = pygame.image.load('./data/128map.png')
 world_surface = pygame.Surface((world_width, world_height))
@@ -48,10 +49,12 @@ def draw_health_bar(x, y, current_health, max_health, bar_width, bar_height):
     pygame.draw.rect(screen, GREEN, (x, y, bar_width * health_percentage, bar_height))
 
 
-def add_to_group(group: Literal['bullets', 'enemies', 'static_objects'], sprite):
+def add_to_group(group : Literal['bullets', 'pbullets', 'enemies', 'static_objects'], sprite):
     match group:
         case 'bullets':
             bullets.add(sprite)
+        case 'pbullets':
+            pbullets.add(sprite)
         case 'enemies':
             enemies.add(sprite)
         case 'static_objects':
@@ -67,14 +70,9 @@ def render(camera):
 
     screen.blit(canvas, (-camera.get_offset().x, -camera.get_offset().y))
 
-    # Render all game objects relative to the camera offset
     for sprite in all_sprites:
         offset_pos = pygame.Vector2(sprite.rect.topleft) - camera.get_offset()
         screen.blit(sprite.image, offset_pos)
-
-    # draw_health_bar(screen, 50, 50, player.health, 100, 200, 20)
-
-    # Display 'You Lose' message if game is over
 
     for obj in static_objects:
         offset_pos = obj.rect.topleft - camera.get_offset()

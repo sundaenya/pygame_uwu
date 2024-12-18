@@ -16,7 +16,8 @@ class Enemy(pygame.sprite.Sprite):
             case 'heavy':
                 self.original_image = pygame.transform.scale(pygame.image.load('./data/Crab_Frame_1.png'), (200, 200))
                 self.speed = 2
-                self.health = 10
+                self.health = 40
+
 
         self.image = self.original_image.copy()  # Work with a copy for modifications
         self.rect = self.image.get_rect()
