@@ -23,14 +23,18 @@ class Enemy(pygame.sprite.Sprite):
                 self.damage_amount = 20
                 self.xp = 5
             case 'tree':
-                self.original_image = pygame.transform.scale(pygame.image.load('./data/Tree_Frame_1.png'), (200, 200))
+                self.original_image = pygame.transform.flip(pygame.transform.scale(pygame.image.load('data/tree/Tree_Frame_1.png'), (200, 200)), True, False)
+                self.walk_frame_1 = pygame.transform.flip(pygame.transform.scale(pygame.image.load('data/tree/Tree_Frame_Walking_1.png'), (200, 200)), True, False)
+                self.walk_frame_2 = pygame.transform.flip(pygame.transform.scale(pygame.image.load('data/tree/Tree_Frame_Walking_2.png'), (200, 200)), True, False)
                 self.speed = 0
                 self.health = 200
                 self.max_health = 200
                 self.damage_amount = 50
                 self.xp = 20
                 self.state = 'sleep'
-                self.countdown = 50
+                self.countdown = 30
+                self.current_frame = 1
+                self.frame_timer = pygame.time.get_ticks()
         self.image = self.original_image.copy()
         self.rect = self.image.get_rect()
         self.rect.center = pos
@@ -42,6 +46,10 @@ class Enemy(pygame.sprite.Sprite):
     def change_direction(self):
         self.original_image = pygame.transform.flip(self.original_image, True, False)
         self.image = pygame.transform.flip(self.image, True, False)
+        if self.type == 'tree':
+            self.walk_frame_1 = pygame.transform.flip(self.walk_frame_1, True, False)
+            self.walk_frame_2 = pygame.transform.flip(self.walk_frame_2, True, False)
+
 
     def is_player_left_or_right(player, enemy):
         if player.rect.centerx < enemy.rect.centerx:
@@ -61,7 +69,6 @@ class Enemy(pygame.sprite.Sprite):
             self.change_direction()
             self.direction = direction
 
-        # Movement towards the player
         dx, dy = player.rect.centerx - self.rect.centerx, player.rect.centery - self.rect.centery
         dist = math.hypot(dx, dy)
         if dist != 0:
@@ -69,7 +76,6 @@ class Enemy(pygame.sprite.Sprite):
             self.rect.x += dx * self.speed
             self.rect.y += dy * self.speed
 
-        # Check and resolve overlaps
         overlapping_enemies = self.grid.get_nearby(self)
         for enemy in overlapping_enemies:
             if enemy != self and self.rect.colliderect(enemy.rect):
@@ -81,12 +87,23 @@ class Enemy(pygame.sprite.Sprite):
             self.state = 'awake'
             camera.shake(50, 15)
             sound.play('./data/sounds/earthquake1.mp3', 2)
+            self.original_image = pygame.transform.flip(pygame.transform.scale(pygame.image.load('data/tree/Tree_Frame_wakeup.png'),(205, 205)), True, False)
+            self.image = pygame.transform.flip(pygame.transform.scale(pygame.image.load('data/tree/Tree_Frame_wakeup.png'), (205, 205)), True, False)
 
         if self.type == 'tree' and self.state == 'awake':
             self.countdown -= 1
 
-        if self.type == 'tree' and self.countdown <= 0:
+        if self.type == 'tree' and self.countdown <= 0 and self.speed <= 0:
             self.speed = 1
+            self.original_image = pygame.transform.scale(pygame.image.load('data/tree/Tree_Frame_Walking_1.png'),(200, 200))
+            self.image = pygame.transform.scale(pygame.image.load('data/tree/Tree_Frame_Walking_1.png'), (200, 200))
+
+        if self.type == 'tree' and self.state == 'awake' and self.speed > 0:
+            current_time = pygame.time.get_ticks()
+            if current_time - self.frame_timer >= 300:
+                self.frame_timer = current_time
+                self.current_frame = 2 if self.current_frame == 1 else 1
+                self.image = self.walk_frame_1 if self.current_frame == 1 else self.walk_frame_2
 
     def get_distance(self, player_pos):
         dx = self.rect.centerx - player_pos[0]
@@ -116,7 +133,7 @@ class Enemy(pygame.sprite.Sprite):
 
         self.health -= amount
 
-        self.flash_red()
+        # self.flash_red()
 
         if self.health <= 0:
             self.die()

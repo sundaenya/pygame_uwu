@@ -40,12 +40,6 @@ camera = Camera()
 cell_size = 200  # Adjust cell size as needed
 spatial_grid = SpatialGrid(cell_size, world_width, world_height)
 
-# tree_sprite = pygame.image.load('data/Tree_Frame_1.png')
-# rock_sprite = pygame.image.load('data/small_rock.png').convert_alpha()
-
-# Scale sprites if needed
-# tree_sprite = pygame.transform.scale(tree_sprite, (250, 250))
-# rock_sprite = pygame.transform.scale(rock_sprite, (100, 100))
 
 def get_font(size): # Returns Press-Start-2P in the desired size
     return pygame.font.Font("C:/Windows/Fonts/arial.ttf", size)
