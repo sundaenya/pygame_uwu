@@ -10,7 +10,7 @@ class Enemy(pygame.sprite.Sprite):
         self.type = etype
         match self.type:
             case 'basic':
-                self.original_image = pygame.transform.scale(pygame.image.load('./data/Crab_Frame_1.png'), (50, 50))
+                self.original_image = pygame.transform.scale(pygame.image.load('./data/Crab_Frame_1.png'), (100, 100))
                 self.speed = 3
                 self.health = 5
                 self.damage_amount = 2
