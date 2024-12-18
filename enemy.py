@@ -10,21 +10,27 @@ class Enemy(pygame.sprite.Sprite):
         self.type = etype
         match self.type:
             case 'basic':
-                self.image = pygame.transform.scale(pygame.image.load('./data/Crab_Frame_1.png'), (100, 100))
+                self.original_image = pygame.transform.scale(pygame.image.load('./data/Crab_Frame_1.png'), (100, 100))
                 self.speed = 3
                 self.health = 5
             case 'heavy':
-                self.image = pygame.transform.scale(pygame.image.load('./data/Crab_Frame_1.png'), (200, 200))
+                self.original_image = pygame.transform.scale(pygame.image.load('./data/Crab_Frame_1.png'), (200, 200))
                 self.speed = 2
                 self.health = 10
 
+        self.image = self.original_image.copy()  # Work with a copy for modifications
         self.rect = self.image.get_rect()
         self.rect.center = pos
         self.grid = grid  # Reference to the spatial grid
-        self.grid.add(self)  # Add to the spatial grid
+        self.grid.add(self)
+        self.flash_time = 0
 
     def update(self, player):
-        self.grid.update(self)  # Update spatial grid position
+        self.grid.update(self)
+
+        if self.flash_time and pygame.time.get_ticks() - self.flash_time > 10:
+            self.image = self.original_image.copy()
+            self.flash_time = 0
 
         # Movement towards the player
         dx, dy = player.rect.centerx - self.rect.centerx, player.rect.centery - self.rect.centery
@@ -44,7 +50,7 @@ class Enemy(pygame.sprite.Sprite):
         dx = self.rect.centerx - other.rect.centerx
         dy = self.rect.centery - other.rect.centery
         distance = math.hypot(dx, dy)
-        if distance == 0:  # Prevent division by zero
+        if distance == 0:
             distance = 1
         overlap = (self.rect.width / 2 + other.rect.width / 2) - distance
         if overlap > 0:
@@ -57,10 +63,15 @@ class Enemy(pygame.sprite.Sprite):
 
     def damage(self, amount):
         self.health -= amount
-        print(self.health)
+
+        self.flash_red()
 
         if self.health <= 0:
             self.die()
+
+    def flash_red(self):
+        self.image.fill((255, 0, 0), special_flags=pygame.BLEND_ADD)
+        self.flash_time = pygame.time.get_ticks()
 
     def die(self):
         self.grid.remove(self)
