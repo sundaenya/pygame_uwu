@@ -150,6 +150,10 @@ def main():
                 all_sprites.add(enemy)
            
         if not game_over:
+            
+            for x in range (player.animationStops):
+                screen.blit(player.animationList[x + 1])
+
             keys = pygame.key.get_pressed()
             player.update(keys)
             if keys[pygame.K_o]:
