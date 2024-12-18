@@ -10,10 +10,10 @@ class Enemy(pygame.sprite.Sprite):
         self.type = etype
         match self.type:
             case 'basic':
-                self.image = pygame.transform.scale(pygame.image.load('./data/crab.png'), (100, 100))
+                self.image = pygame.transform.scale(pygame.image.load('./data/Crab_Frame_1.png'), (100, 100))
                 self.speed = 3
             case 'heavy':
-                self.image = pygame.transform.scale(pygame.image.load('./data/crab.png'), (200, 200))
+                self.image = pygame.transform.scale(pygame.image.load('./data/Crab_Frame_1.png'), (200, 200))
                 self.speed = 2
 
         self.rect = self.image.get_rect()

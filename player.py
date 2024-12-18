@@ -5,7 +5,7 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
         self.size = GameSettings.PLAYER_SIZE
-        self.image = pygame.transform.scale(pygame.image.load('./data/Kibty.png'), (self.size, self.size))
+        self.image = pygame.transform.scale(pygame.image.load('./data/Cat_Frame_Thicker_1.png'), (self.size, self.size))
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.speed = 5

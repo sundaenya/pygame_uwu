@@ -151,7 +151,7 @@ def main():
            
         if not game_over:
             keys = pygame.key.get_pressed()
-            player.update(keys)
+            player.update(keys) 
             if keys[pygame.K_o]:
                 hitbox = not hitbox
 
