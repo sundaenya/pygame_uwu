@@ -10,4 +10,4 @@ class GameSettings:
     SCREEN_HEIGHT = 1080
     WORLD_WIDTH = 4096
     WORLD_HEIGHT = 4096
-    PLAYER_SIZE = 85
+    PLAYER_SIZE = 110

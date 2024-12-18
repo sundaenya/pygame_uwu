@@ -1,15 +1,23 @@
 import pygame
 from enums import GameSettings
 
+animationList = []
+animationStops = 5
 class Player(pygame.sprite.Sprite):
+
     def __init__(self, x, y):
         super().__init__()
         self.size = GameSettings.PLAYER_SIZE
-        self.image = pygame.transform.scale(pygame.image.load('./data/Kibty.png'), (self.size, self.size))
+        self.image = pygame.transform.scale(pygame.image.load('data/player/Cat_Frame_Thicker_1.png'), (self.size, self.size))
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
-        self.speed = 5
+        self.speed = 15
         self.health = 100
+        self.animate()
+
+    def load_images(self):
+        self.frames = { 'left': [], 'right': [], 'up': [], 'down': []}
+
 
 
     def update(self, keys):
@@ -39,5 +47,6 @@ class Player(pygame.sprite.Sprite):
         except:
             return None
         
-        # TODO Fix
+    def animate(self):
+        return
 
