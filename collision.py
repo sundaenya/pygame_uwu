@@ -7,4 +7,9 @@ def check_collision(player, enemy):
     return False
 
 def check_bullet_collisions(bullets, enemies):
-    return pygame.sprite.groupcollide(bullets, enemies, True, True)
+    collisions = pygame.sprite.groupcollide(bullets, enemies, True, False)
+
+    for bullet, hit_enemies in collisions.items():
+        for enemy in hit_enemies:
+            enemy.damage(bullet.damage)
+

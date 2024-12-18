@@ -8,12 +8,16 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
         self.size = GameSettings.PLAYER_SIZE
-        self.image = pygame.transform.scale(pygame.image.load('./data/Cat_Frame_Thicker_1.png'), (self.size, self.size))
+        self.image = pygame.transform.scale(pygame.image.load('data/player/Cat_Frame_Thicker_1.png'), (self.size, self.size))
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.speed = 5
         self.health = 100
         self.animate()
+
+    def load_images(self):
+        self.frames = { 'left': [], 'right': [], 'up': [], 'down': []}
+
 
 
     def update(self, keys):
@@ -44,7 +48,5 @@ class Player(pygame.sprite.Sprite):
             return None
         
     def animate(self):
-        for i in range (animationStops) :
-            animationList.append(pygame.image.load(f'./data/Cat_Frame_Thicker_{i + 1}.png')) 
-            #print("add frame" + str(i + 1))
+        return
 

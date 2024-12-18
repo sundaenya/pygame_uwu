@@ -10,11 +10,13 @@ class Enemy(pygame.sprite.Sprite):
         self.type = etype
         match self.type:
             case 'basic':
-                self.image = pygame.transform.scale(pygame.image.load('./data/crab.png'), (100, 100))
+                self.image = pygame.transform.scale(pygame.image.load('./data/Crab_Frame_1.png'), (100, 100))
                 self.speed = 3
+                self.health = 5
             case 'heavy':
-                self.image = pygame.transform.scale(pygame.image.load('./data/crab.png'), (200, 200))
+                self.image = pygame.transform.scale(pygame.image.load('./data/Crab_Frame_1.png'), (200, 200))
                 self.speed = 2
+                self.health = 10
 
         self.rect = self.image.get_rect()
         self.rect.center = pos
@@ -53,8 +55,15 @@ class Enemy(pygame.sprite.Sprite):
             other.rect.x -= dx * overlap / 2
             other.rect.y -= dy * overlap / 2
 
+    def damage(self, amount):
+        self.health -= amount
+        print(self.health)
+
+        if self.health <= 0:
+            self.die()
+
     def die(self):
-        self.grid.remove(self)  # Remove from spatial grid
+        self.grid.remove(self)
         self.kill()
 
     def get_pos(self):

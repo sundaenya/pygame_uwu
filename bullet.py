@@ -16,12 +16,10 @@ class Bullet(pygame.sprite.Sprite):
         angle = math.atan2(target_y - y, target_x - x)
         self.dx = math.cos(angle) * self.speed
         self.dy = math.sin(angle) * self.speed
+        self.damage = 1
 
     def update(self):
         self.rect.x += self.dx
         self.rect.y += self.dy
         if self.rect.bottom < 0 or self.rect.top > GameSettings.WORLD_HEIGHT or self.rect.left > GameSettings.WORLD_WIDTH or self.rect.right < 0:
             self.kill()
-    
-    def die(self):
-        self.kill()
