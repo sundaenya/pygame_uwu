@@ -15,6 +15,7 @@ GREEN = (0, 255, 0)
 
 pygame.init()
 bullets = pygame.sprite.Group()
+pbullets = pygame.sprite.Group()
 enemies = pygame.sprite.Group()
 static_objects = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
@@ -55,10 +56,12 @@ def draw_health_bar(x, y, current_health, max_health, bar_width, bar_height):
     # Green foreground (health remaining)
     pygame.draw.rect(screen, GREEN, (x, y, bar_width * health_percentage, bar_height))
 
-def add_to_group(group : Literal['bullets', 'enemies', 'static_objects'], sprite):
+def add_to_group(group : Literal['bullets', 'pbullets', 'enemies', 'static_objects'], sprite):
     match group:
         case 'bullets':
             bullets.add(sprite)
+        case 'pbullets':
+            pbullets.add(sprite)
         case 'enemies':
             enemies.add(sprite)
         case 'static_objects':
@@ -85,8 +88,6 @@ def render(camera):
 
         # Display 'You Lose' message if game is over
 
-        pygame.draw.rect(screen, "red",
-                             pygame.Rect(offset_pos.x, offset_pos.y, sprite.rect.width, sprite.rect.height),width=2)
 
         for obj in static_objects:
             offset_pos = obj.rect.topleft - camera.get_offset()

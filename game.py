@@ -5,14 +5,17 @@ from spritesheet import *
 import random
 import sound
 import render
+from beam import Beam
 from player import Player
 from enemy import Enemy
 from bullet import Bullet
 from camera import Camera
 from enums import GameSettings
-from collision import check_collision, check_bullet_collisions
+from collision import *
 from spatial_grid import SpatialGrid
-from random import randrange  
+from random import randrange
+
+from wisp import Wisp  
 
 # Initialize Pygame
 pygame.init()
@@ -78,11 +81,13 @@ def main():
     game_over = False
 
     FIRE  = pygame.USEREVENT + 1
-    pygame.time.set_timer(FIRE, 200)
+    pygame.time.set_timer(FIRE, 2000)
 
     SPAWN_ENEMY = pygame.USEREVENT + 2  # Define a new event
     pygame.time.set_timer(SPAWN_ENEMY, 100) 
 
+    wisp = Wisp(player, 250)
+    render.add_to_group('pbullets', wisp)
 
     # Game loop
     running = True
@@ -95,12 +100,13 @@ def main():
                 sys.exit()
 
             elif event.type == FIRE:
+                closest_enemy = player.get_closest_enemy(render.enemies)
                 try:
-                    closest_enemy = player.get_closest_enemy(render.enemies)
                     if closest_enemy:
                         target_x, target_y = closest_enemy.get_pos()
                     else:
                         target_x, target_y = player.rect.centerx, player.rect.centery - 1
+                        closest_enemy = (target_x, target_y)
                 except:
                     target_x, target_y = player.rect.centerx, player.rect.centery - 1
 
@@ -141,8 +147,10 @@ def main():
                     if player.health == 0:
                         game_over = True
             render.bullets.update()
+            render.pbullets.update()
 
-            check_bullet_collisions(render.bullets, render.enemies)  # Note: Ensure parameters are correct
+            check_bullet_collisions(render.bullets, render.enemies)
+            check_pbullet_collisions(render.pbullets, render.enemies)
 
         render.render(camera)
         camera.move(player.rect)
