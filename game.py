@@ -13,6 +13,9 @@ from enums import GameSettings
 from collision import check_collision, check_bullet_collisions
 from spatial_grid import SpatialGrid
 from random import randrange  
+from render import screen
+from button import Button
+import math
 
 # Initialize Pygame
 pygame.init()
@@ -44,6 +47,10 @@ rock_sprite = pygame.image.load('data/small_rock.png').convert_alpha()
 # Scale sprites if needed
 tree_sprite = pygame.transform.scale(tree_sprite, (200, 200))
 rock_sprite = pygame.transform.scale(rock_sprite, (100, 100))
+
+def get_font(size): # Returns Press-Start-2P in the desired size
+    return pygame.font.Font("C:/Windows/Fonts/arial.ttf", size)
+    
 #static_objects = pygame.sprite.Group()
 
 # Static objects class
@@ -65,10 +72,11 @@ for _ in range(10):  # Add 10 rocks
     render.add_to_group('static_objects', StaticObject(rock_sprite, (x, y)))
 
 # Main game loop
+
 def main():
     clock = pygame.time.Clock()
     sound.bg_music()
-
+    min_range = 300
 
     
     player = Player(screen_width // 2, screen_height // 2)
@@ -107,7 +115,7 @@ def main():
                 bullet = Bullet(player.rect.centerx, player.rect.centery, target_x, target_y)
                 render.add_to_group('bullets', bullet)
 
-            elif event.type == pygame.MOUSEBUTTONDOWN:
+            elif event.type == pygame.MOUSEBUTTONDOWN and not game_over:
                 mouse_pos = pygame.mouse.get_pos()
                 world_pos = (mouse_pos[0] + camera.get_offset().x, mouse_pos[1] + camera.get_offset().y)
                 enemy_type = random.choice(['basic', 'heavy'])
@@ -115,15 +123,23 @@ def main():
                 render.add_to_group('enemies', enemy)
             
             # Randomly spawn enemies
+
             elif event.type == SPAWN_ENEMY and not game_over:
-
-                spawn_x, spawn_y = randrange(world_width), randrange(world_height)
-
-                while player.rect.collidepoint(spawn_x, spawn_y):
+                while True:
+        # Generate random spawn coordinates
                     spawn_x, spawn_y = randrange(world_width), randrange(world_height)
 
+        # Calculate distance from the player
+                    distance = math.sqrt((spawn_x - player.rect.centerx) ** 2 + (spawn_y - player.rect.centery) ** 2)
+
+        # Break if the spawn point is far enough
+                    if distance >= min_range:
+                        break
+
+    # Create the enemy after finding a valid spawn point
                 enemy = Enemy((spawn_x, spawn_y), random.choice(('basic', 'heavy')), spatial_grid)
 
+    # Add the enemy to the rendering group
                 render.add_to_group('enemies', enemy)
 
            
@@ -132,7 +148,12 @@ def main():
             player.update(keys)
             if keys[pygame.K_o]:
                 hitbox = not hitbox
-
+            if keys[pygame.K_ESCAPE]:
+                running = False
+                pygame.quit()
+            if keys[pygame.K_SPACE]:
+                running = False
+                
             for e in render.enemies:
                 e.update(player)
                 if check_collision(player, e):
@@ -156,13 +177,60 @@ def main():
             if keys[pygame.K_ESCAPE]:
                 running = False
                 pygame.quit()
-            if keys[pygame.K_SPACE]:
-                main()          
+            # if keys[pygame.K_SPACE]:
+            #     main()          
         
         # Cap the frame rate
         clock.tick(60)
+
+def main_menu():
+    pygame.display.set_caption('Menu')
+
+    image = pygame.image.load('data/button.png')
+
+    w = 400
+    h = 300
+
+    n_image = pygame.transform.scale(image, (w,h))
+
+    while True:
+        # screen.blit(bg, (0,0)) 
+        screen.fill((0, 0 , 255))
+
+        MENU_MOUSE_POS = pygame.mouse.get_pos()
+
+        MENU_TEXT = get_font(50).render('MAIN MENU', True, '#b68f40')
+        MENU_RECT = MENU_TEXT.get_rect(center=(screen_width//2, 100))
+
+        PLAY_BUTTON =  Button(image = n_image, 
+                              pos = (screen_width//2, 300), text_input="PLAY", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+        OPTIONS_BUTTON = Button(image= n_image, pos=(screen_width//2, 600), 
+                            text_input="OPTIONS", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+        QUIT_BUTTON = Button(image= n_image, pos=(screen_width//2, 900), 
+                            text_input="QUIT", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+
+        screen.blit(MENU_TEXT, MENU_RECT)
+
+        for button in [PLAY_BUTTON, OPTIONS_BUTTON, QUIT_BUTTON]:
+            button.changeColor(MENU_MOUSE_POS)
+            button.update(screen)
         
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if PLAY_BUTTON.checkForInput(MENU_MOUSE_POS):
+                    main()  
+                if OPTIONS_BUTTON.checkForInput(MENU_MOUSE_POS):
+                    main()
+                if QUIT_BUTTON.checkForInput(MENU_MOUSE_POS):
+                    pygame.quit()
+                    sys.exit()
+
+        pygame.display.update()
+
 
 # Run the game
 if __name__ == "__main__":
-    main()
+   main_menu()
