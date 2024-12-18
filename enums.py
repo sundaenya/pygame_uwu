@@ -1,8 +1,9 @@
-class Direction:
-    UP = "up"
-    DOWN = "down"
-    LEFT = "left"
-    RIGHT = "right"
+class Difficulty:
+    EASY = 1
+    MEDIUM = 2
+    HARD = 3
+    EXTREMELY_HARD = 4
+    IMPOSSIBLE = 5
 
 
 class GameSettings:

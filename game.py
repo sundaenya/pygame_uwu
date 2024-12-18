@@ -1,15 +1,13 @@
 import sys
 from tiles import *
-from spritesheet import *
 import random
 import sound
 import render
-from beam import Beam
 from player import Player
 from enemy import Enemy
 from bullet import Bullet
 from camera import Camera
-from enums import GameSettings
+from enums import GameSettings, Difficulty
 from collision import *
 from spatial_grid import SpatialGrid
 from wisp import Wisp
@@ -42,12 +40,12 @@ camera = Camera()
 cell_size = 200  # Adjust cell size as needed
 spatial_grid = SpatialGrid(cell_size, world_width, world_height)
 
-tree_sprite = pygame.image.load('data/corrupted_tree.png')
-rock_sprite = pygame.image.load('data/small_rock.png').convert_alpha()
+# tree_sprite = pygame.image.load('data/Tree_Frame_1.png')
+# rock_sprite = pygame.image.load('data/small_rock.png').convert_alpha()
 
 # Scale sprites if needed
-tree_sprite = pygame.transform.scale(tree_sprite, (200, 200))
-rock_sprite = pygame.transform.scale(rock_sprite, (100, 100))
+# tree_sprite = pygame.transform.scale(tree_sprite, (250, 250))
+# rock_sprite = pygame.transform.scale(rock_sprite, (100, 100))
 
 def get_font(size): # Returns Press-Start-2P in the desired size
     return pygame.font.Font("C:/Windows/Fonts/arial.ttf", size)
@@ -63,19 +61,27 @@ class StaticObject(pygame.sprite.Sprite):
 for _ in range(10):  # Add 10 trees
     x = random.randint(100, world_width - 100)
     y = random.randint(100, world_height - 100)
-    render.add_to_group('static_objects', StaticObject(tree_sprite, (x, y)))
-
-for _ in range(10):  # Add 10 rocks
-    x = random.randint(100, world_width - 100)
-    y = random.randint(100, world_height - 100)
-    render.add_to_group('static_objects', StaticObject(rock_sprite, (x, y)))
+    render.add_to_group('enemies', Enemy((x, y), 'tree', spatial_grid))
 
 
-# Main game loop
+def set_difficulty(xp):
+    difficulty = Difficulty.EASY
+
+    if 200 < xp < 700:
+        difficulty = Difficulty.MEDIUM
+    elif 700 < xp < 1200:
+        difficulty = Difficulty.HARD
+    elif 1200 < xp < 2000:
+        difficulty = Difficulty.EXTREMELY_HARD
+    elif 2000 < xp:
+        difficulty = Difficulty.IMPOSSIBLE
+
+    return difficulty
+
 
 def main():
     clock = pygame.time.Clock()
-    sound.bg_music()
+    sound.bg_music(0.05)
     min_range = 300
     player = Player(screen_width // 2, screen_height // 2)
     render.add_to_group(None, player)
@@ -91,10 +97,9 @@ def main():
     wisp = Wisp(player, 250)
     render.add_to_group('pbullets', wisp)
 
-    # Game loop
     running = True
     while running:
-        # Handle events
+        difficulty = set_difficulty(player.xp)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -103,7 +108,6 @@ def main():
 
             elif event.type == FIRE:
                 closest_enemy = player.get_closest_enemy(render.enemies)
-
                 bullet = Bullet(player, closest_enemy)
                 render.add_to_group('bullets', bullet)
 
@@ -114,31 +118,21 @@ def main():
                 enemy = Enemy(world_pos, enemy_type, spatial_grid)
                 render.add_to_group('enemies', enemy)
 
-            # Randomly spawn enemies
-
-            elif event.type == SPAWN_ENEMY and not game_over:
+            elif event.type == SPAWN_ENEMY and not game_over and render.get_enemy_number() < 20 * difficulty:
                 while True:
-        # Generate random spawn coordinates
                     spawn_x, spawn_y = randrange(world_width), randrange(world_height)
-
-        # Calculate distance from the player
                     distance = math.sqrt((spawn_x - player.rect.centerx) ** 2 + (spawn_y - player.rect.centery) ** 2)
-
-        # Break if the spawn point is far enough
                     if distance >= min_range:
                         break
 
-    # Create the enemy after finding a valid spawn point
+                if render.get_number_of_trees() < 10 * difficulty:
+                    render.add_to_group('enemies', Enemy((spawn_x, spawn_y),'tree', spatial_grid))
                 enemy = Enemy((spawn_x, spawn_y), random.choice(('basic', 'heavy')), spatial_grid)
-
-    # Add the enemy to the rendering group
                 render.add_to_group('enemies', enemy)
 
+                print(difficulty)
+
         if not game_over:
-
-            # for x in range (player.animationStops):
-            #     screen.blit(player.animationList[x + 1])
-
             keys = pygame.key.get_pressed()
             player.update(keys)
 
@@ -147,9 +141,11 @@ def main():
                 pygame.quit()
             if keys[pygame.K_SPACE]:
                 running = False
+            if keys[pygame.K_m]:
+                camera.shake(20, 5)
 
             for e in render.enemies:
-                e.update(player)
+                e.update(player, camera)
                 if check_collision(player, e):
                     player.damage(e.damage_amount)
 
@@ -158,15 +154,15 @@ def main():
             render.bullets.update()
             render.pbullets.update()
 
-            check_bullet_collisions(render.bullets, render.enemies)
-            check_pbullet_collisions(render.pbullets, render.enemies)
+            check_bullet_collisions(render.bullets, render.enemies, player)
+            check_pbullet_collisions(render.pbullets, render.enemies, player)
 
         render.render(camera, player)
         camera.move(player.rect)
 
-        # Display 'You Lose' message if game is over
         if game_over:
             render.show_message('You Lose', (255, 255, 255), screen_width // 2 - 100, screen_height // 2 - 50)
+            render.render(camera, player)
             keys = pygame.key.get_pressed()
             if keys[pygame.K_ESCAPE]:
                 running = False
