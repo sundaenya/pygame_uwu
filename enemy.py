@@ -10,16 +10,16 @@ class Enemy(pygame.sprite.Sprite):
         self.type = etype
         match self.type:
             case 'basic':
-                self.original_image = pygame.transform.scale(pygame.image.load('./data/Crab_Frame_1.png'), (100, 100))
+                self.original_image = pygame.transform.scale(pygame.image.load('./data/Crab_Frame_1.png'), (50, 50))
                 self.speed = 3
                 self.health = 5
+                self.damage_amount = 2
             case 'heavy':
                 self.original_image = pygame.transform.scale(pygame.image.load('./data/Crab_Frame_1.png'), (200, 200))
                 self.speed = 2
                 self.health = 40
-
-
-        self.image = self.original_image.copy()  # Work with a copy for modifications
+                self.damage_amount = 20
+        self.image = self.original_image.copy()
         self.rect = self.image.get_rect()
         self.rect.center = pos
         self.grid = grid  # Reference to the spatial grid

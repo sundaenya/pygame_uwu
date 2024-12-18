@@ -141,9 +141,9 @@ def main():
             for e in render.enemies:
                 e.update(player)
                 if check_collision(player, e):
-                    player.damage(1)
+                    player.damage(e.damage_amount)
 
-                    if player.health == 0:
+                    if player.health <= 0:
                         game_over = True
             render.bullets.update()
             render.pbullets.update()
@@ -151,9 +151,8 @@ def main():
             check_bullet_collisions(render.bullets, render.enemies)
             check_pbullet_collisions(render.pbullets, render.enemies)
 
-        render.render(camera)
+        render.render(camera, player)
         camera.move(player.rect)
-        render.draw_health_bar(50, 50, player.health, 100, 200, 20)
 
         # Display 'You Lose' message if game is over
         if game_over:
