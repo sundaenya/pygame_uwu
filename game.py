@@ -7,7 +7,7 @@ from player import Player
 from enemy import Enemy
 from bullet import Bullet
 from camera import Camera
-from enums import GameSettings, Difficulty
+from enums import GameSettings, Difficulty, Level
 from collision import *
 from spatial_grid import SpatialGrid
 from wave_attack import Wave_Attack
@@ -53,23 +53,38 @@ class StaticObject(pygame.sprite.Sprite):
         self.image = image
         self.rect = self.image.get_rect(topleft=pos)
 
+player = Player(screen_width // 2, screen_height // 2)
+
+enemies = [player]
 
 for _ in range(10):  # Add 10 trees
-    x = random.randint(100, world_width - 100)
-    y = random.randint(100, world_height - 100)
-    render.add_to_group('enemies', Enemy((x, y), 'tree', spatial_grid))
+    while True:
+        x = random.randint(100, world_width - 100)
+        y = random.randint(100, world_height - 100)
+        newTree = pygame.Rect((x, y), (800, 800))
+
+        collision = False
+        for i in enemies:
+            if pygame.Rect.colliderect(newTree, i):
+                collision = True
+                break
+        if not collision:
+            newTree =  Enemy((x, y), 'tree', spatial_grid)
+            enemies.append(newTree)
+            render.add_to_group('enemies', newTree)
+            break
 
 
 def set_difficulty(xp):
     difficulty = Difficulty.EASY
 
-    if 200 < xp < 700:
+    if Level.ONE < xp < Level.TWO:
         difficulty = Difficulty.MEDIUM
-    elif 700 < xp < 1200:
+    elif Level.TWO < xp < Level.THREE:
         difficulty = Difficulty.HARD
-    elif 1200 < xp < 2000:
+    elif Level.THREE < xp < Level.FOUR:
         difficulty = Difficulty.EXTREMELY_HARD
-    elif 2000 < xp:
+    elif Level.FOUR < xp:
         difficulty = Difficulty.IMPOSSIBLE
 
     return difficulty
@@ -77,7 +92,7 @@ def set_difficulty(xp):
 def main():
     clock = pygame.time.Clock()
     sound.bg_music(0.05)
-    min_range = 300
+    min_range = 500
     player = Player(screen_width // 2, screen_height // 2)
     render.add_to_group(None, player)
 
@@ -118,7 +133,7 @@ def main():
                 enemy = Enemy(world_pos, enemy_type, spatial_grid)
                 render.add_to_group('enemies', enemy)
 
-            elif event.type == SPAWN_ENEMY and not game_over and render.get_enemy_number() < 20 * difficulty:
+            elif event.type == SPAWN_ENEMY and not game_over and render.get_enemy_number() < 25 * difficulty:
                 while True:
                     spawn_x, spawn_y = randrange(world_width), randrange(world_height)
                     distance = math.sqrt((spawn_x - player.rect.centerx) ** 2 + (spawn_y - player.rect.centery) ** 2)
@@ -140,6 +155,7 @@ def main():
                 sys.exit()
             if keys[pygame.K_SPACE]:
                 running = False
+                sys.exit()
             if keys[pygame.K_m]:
                 camera.shake(20, 5)
 
@@ -167,6 +183,7 @@ def main():
             if keys[pygame.K_ESCAPE]:
                 running = False
                 pygame.quit()
+                sys.exit()
 
         clock.tick(60)
 
@@ -216,7 +233,6 @@ def main_menu():
                     sys.exit()
 
         pygame.display.update()
-
 
 # Run the game
 if __name__ == "__main__":
