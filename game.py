@@ -105,13 +105,13 @@ def main():
     SPAWN_ENEMY = pygame.USEREVENT + 2
     pygame.time.set_timer(SPAWN_ENEMY, 100)
 
-    # wisp = Wisp(player, 250, 0.5)
-    # render.add_to_group('pbullets', wisp)
+    wisp = Wisp(player, 250, 0.5)
+    render.add_to_group('pbullets', wisp)
 
     gun = Weapon(5, 'bullet', True)
     beam = Weapon(50, 'beam', True)
     bomb = Weapon(10, 'bomb', True)
-    weapon_list = [bomb]
+    weapon_list = [bomb, gun, beam]
 
     running = True
     while running:
