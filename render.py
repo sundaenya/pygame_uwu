@@ -84,7 +84,7 @@ def render(camera, player):
     list = all_sprites.sprites()
     list.sort(key=lambda sprite: sprite.rect.bottom)
 
-    for sprite in all_sprites:
+    for sprite in list:
         offset_pos = pygame.Vector2(sprite.rect.topleft) - camera.get_offset()
         screen.blit(sprite.image, offset_pos)
 
