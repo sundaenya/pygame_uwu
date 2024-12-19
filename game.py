@@ -4,12 +4,13 @@ import random
 import sound
 import render
 from player import Player
-from enemy import Enemy
-from bullet import Bullet
+from enemy import Enemy, EnemyType
 from camera import Camera
 from enums import GameSettings, Difficulty, Level
 from collision import *
 from spatial_grid import SpatialGrid
+from wave_attack import Wave_Attack
+from weapon import Weapon
 from wisp import Wisp
 from random import randrange
 from render import screen
@@ -36,20 +37,20 @@ world_height = GameSettings.WORLD_HEIGHT
 
 camera = Camera()
 
-# Initialize spatial grid
-cell_size = 200  # Adjust cell size as needed
+cell_size = 200
 spatial_grid = SpatialGrid(cell_size, world_width, world_height)
 
 
-def get_font(size): # Returns Press-Start-2P in the desired size
+def get_font(size):
     return pygame.font.Font("C:/Windows/Fonts/arial.ttf", size)
 
-# Static objects class
+
 class StaticObject(pygame.sprite.Sprite):
     def __init__(self, image, pos):
         super().__init__()
         self.image = image
         self.rect = self.image.get_rect(topleft=pos)
+
 
 player = Player(screen_width // 2, screen_height // 2)
 
@@ -59,7 +60,7 @@ for _ in range(10):  # Add 10 trees
     while True:
         x = random.randint(100, world_width - 100)
         y = random.randint(100, world_height - 100)
-        newTree = pygame.Rect((x, y), (800, 800))
+        newTree = pygame.Rect((x, y), (1500, 1500))
 
         collision = False
         for i in enemies:
@@ -67,7 +68,7 @@ for _ in range(10):  # Add 10 trees
                 collision = True
                 break
         if not collision:
-            newTree =  Enemy((x, y), 'tree', spatial_grid)
+            newTree = Enemy((x, y), EnemyType.TREE, spatial_grid)
             enemies.append(newTree)
             render.add_to_group('enemies', newTree)
             break
@@ -98,13 +99,16 @@ def main():
     game_over = False
 
     FIRE = pygame.USEREVENT + 1
-    pygame.time.set_timer(FIRE, 200)
+    pygame.time.set_timer(FIRE, 100)
 
     SPAWN_ENEMY = pygame.USEREVENT + 2
     pygame.time.set_timer(SPAWN_ENEMY, 100)
 
-    wisp = Wisp(player, 250)
+    wisp = Wisp(player, 250, 0.5)
     render.add_to_group('pbullets', wisp)
+
+    gun = Weapon(5, 'bullet', True)
+    beam = Weapon(50, 'beam', True)
 
     running = True
     while running:
@@ -116,14 +120,15 @@ def main():
                 sys.exit()
 
             elif event.type == FIRE:
-                closest_enemy = player.get_closest_enemy(render.enemies)
-                bullet = Bullet(player, closest_enemy)
-                render.add_to_group('bullets', bullet)
+                if not game_over:
+                    closest_enemy = player.get_closest_enemy(render.enemies)
+                    gun.fire(player, closest_enemy)
+                    beam.fire(player, closest_enemy)
 
             elif event.type == pygame.MOUSEBUTTONDOWN and not game_over:
                 mouse_pos = pygame.mouse.get_pos()
                 world_pos = (mouse_pos[0] + camera.get_offset().x, mouse_pos[1] + camera.get_offset().y)
-                enemy_type = random.choice(['basic', 'heavy'])
+                enemy_type = random.choice([EnemyType.FOX, EnemyType.CRAB])
                 enemy = Enemy(world_pos, enemy_type, spatial_grid)
                 render.add_to_group('enemies', enemy)
 
@@ -135,8 +140,8 @@ def main():
                         break
 
                 if render.get_number_of_trees() < 10 * difficulty:
-                    render.add_to_group('enemies', Enemy((spawn_x, spawn_y),'tree', spatial_grid))
-                enemy = Enemy((spawn_x, spawn_y), random.choice(('basic', 'heavy')), spatial_grid)
+                    render.add_to_group('enemies', Enemy((spawn_x, spawn_y), EnemyType.TREE, spatial_grid))
+                enemy = Enemy((spawn_x, spawn_y), random.choice((EnemyType.FOX, EnemyType.CRAB, EnemyType.MUSHROOM)), spatial_grid)
                 render.add_to_group('enemies', enemy)
 
         if not game_over:
@@ -162,6 +167,7 @@ def main():
                         game_over = True
             render.bullets.update()
             render.pbullets.update()
+            render.other.update()
 
             check_bullet_collisions(render.bullets, render.enemies, player)
             check_pbullet_collisions(render.pbullets, render.enemies, player)
@@ -180,6 +186,7 @@ def main():
 
         clock.tick(60)
 
+
 def main_menu():
     pygame.display.set_caption('Menu')
 
@@ -188,37 +195,38 @@ def main_menu():
     w = 400
     h = 300
 
-    n_image = pygame.transform.scale(image, (w,h))
+    n_image = pygame.transform.scale(image, (w, h))
 
     while True:
         # screen.blit(bg, (0,0)) 
-        screen.fill((0, 0 , 255))
+        screen.fill((0, 0, 255))
 
         MENU_MOUSE_POS = pygame.mouse.get_pos()
 
         MENU_TEXT = get_font(50).render('MAIN MENU', True, '#b68f40')
-        MENU_RECT = MENU_TEXT.get_rect(center=(screen_width//2, 100))
+        MENU_RECT = MENU_TEXT.get_rect(center=(screen_width // 2, 100))
 
-        PLAY_BUTTON =  Button(image = n_image, 
-                              pos = (screen_width//2, 300), text_input="PLAY", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
-        OPTIONS_BUTTON = Button(image= n_image, pos=(screen_width//2, 600), 
-                            text_input="OPTIONS", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
-        QUIT_BUTTON = Button(image= n_image, pos=(screen_width//2, 900), 
-                            text_input="QUIT", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+        PLAY_BUTTON = Button(image=n_image,
+                             pos=(screen_width // 2, 300), text_input="PLAY", font=get_font(75), base_color="#d7fcd4",
+                             hovering_color="White")
+        OPTIONS_BUTTON = Button(image=n_image, pos=(screen_width // 2, 600),
+                                text_input="OPTIONS", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+        QUIT_BUTTON = Button(image=n_image, pos=(screen_width // 2, 900),
+                             text_input="QUIT", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
 
         screen.blit(MENU_TEXT, MENU_RECT)
 
         for button in [PLAY_BUTTON, OPTIONS_BUTTON, QUIT_BUTTON]:
             button.changeColor(MENU_MOUSE_POS)
             button.update(screen)
-        
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if PLAY_BUTTON.checkForInput(MENU_MOUSE_POS):
-                    main()  
+                    main()
                 if OPTIONS_BUTTON.checkForInput(MENU_MOUSE_POS):
                     main()
                 if QUIT_BUTTON.checkForInput(MENU_MOUSE_POS):
@@ -227,6 +235,7 @@ def main_menu():
 
         pygame.display.update()
 
+
 # Run the game
 if __name__ == "__main__":
-   main_menu()
+    main_menu()

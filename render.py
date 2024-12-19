@@ -1,3 +1,4 @@
+import math
 from typing import Literal
 import pygame
 from enemy import Enemy
@@ -17,6 +18,7 @@ pygame.init()
 bullets = pygame.sprite.Group()
 pbullets = pygame.sprite.Group()
 enemies = pygame.sprite.Group()
+other = pygame.sprite.Group()
 static_objects = pygame.sprite.Group()
 all_sprites = pygame.sprite.Group()
 font = pygame.font.SysFont(None, 55)
@@ -28,7 +30,7 @@ world_height = GameSettings.WORLD_HEIGHT
 # Set up the game window
 screen = pygame.display.set_mode((screen_width, screen_height), pygame.NOFRAME)
 pygame.display.set_caption('Amelia Earheart Simulator')
-crab = pygame.image.load('data/Kibty.png')
+crab = pygame.image.load('data/crab.png')
 spritesheet = Spritesheet('grassTileset.png')
 canvas = pygame.image.load('./data/128map.png')
 world_surface = pygame.Surface((world_width, world_height))
@@ -58,6 +60,8 @@ def add_to_group(group : Literal['bullets', 'pbullets', 'enemies', 'static_objec
             enemies.add(sprite)
         case 'static_objects':
             static_objects.add(sprite)
+        case 'other':
+            other.add(sprite)
         case _:
             pass
     all_sprites.add(sprite)
