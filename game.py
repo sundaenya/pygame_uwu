@@ -211,7 +211,6 @@ def main_menu():
 
         pygame.display.update()
 
-
 # Run the game
 if __name__ == "__main__":
    main_menu()
