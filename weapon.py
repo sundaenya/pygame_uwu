@@ -1,6 +1,7 @@
 import math
 import pygame
 from beam import Beam
+from bomb import Bomb
 from bullet import Bullet
 import render
 from wisp import Wisp
@@ -15,15 +16,16 @@ class Weapon(pygame.sprite.Sprite):
 
 
     def fire(self, player, target):
-        if self.active:
-            self.rate -= 1
-            if self.rate < 0:
-                match self.bullet_type:
-                    case 'bullet':
-                        render.add_to_group('bullets', Bullet(player, target, (255, 0, 0), 20, 1))
-                    case 'beam':
-                        render.add_to_group('other', Beam(player, target, (255, 0, 0)))
-                        render.add_to_group('pbullets', Bullet(player, target, (0, 0, 0, 0), 50, 10))
-                    case _:
-                        pass
-                self.rate = self.firerate
+        self.rate -= 1
+        if self.rate < 0:
+            match self.bullet_type:
+                case 'bullet':
+                    render.add_to_group('bullets', Bullet(player, target, (255, 0, 0), 20, 1))
+                case 'beam':
+                    render.add_to_group('other', Beam(player, target, (255, 0, 0)))
+                    render.add_to_group('pbullets', Bullet(player, target, (0, 0, 0, 0), 50, 5))
+                case 'bomb':
+                    render.add_to_group('other', Bomb(player, target, (0, 0, 255), 7, 1, 40))
+                case _:
+                    pass
+            self.rate = self.firerate

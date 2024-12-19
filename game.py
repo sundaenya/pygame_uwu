@@ -1,4 +1,5 @@
 import sys
+from bomb import Bomb
 from tiles import *
 import random
 import sound
@@ -104,11 +105,13 @@ def main():
     SPAWN_ENEMY = pygame.USEREVENT + 2
     pygame.time.set_timer(SPAWN_ENEMY, 100)
 
-    wisp = Wisp(player, 250, 0.5)
-    render.add_to_group('pbullets', wisp)
+    # wisp = Wisp(player, 250, 0.5)
+    # render.add_to_group('pbullets', wisp)
 
     gun = Weapon(5, 'bullet', True)
     beam = Weapon(50, 'beam', True)
+    bomb = Weapon(10, 'bomb', True)
+    weapon_list = [bomb]
 
     running = True
     while running:
@@ -122,8 +125,8 @@ def main():
             elif event.type == FIRE:
                 if not game_over:
                     closest_enemy = player.get_closest_enemy(render.enemies)
-                    gun.fire(player, closest_enemy)
-                    beam.fire(player, closest_enemy)
+                    for weapon in weapon_list:
+                        weapon.fire(player, closest_enemy)
 
             elif event.type == pygame.MOUSEBUTTONDOWN and not game_over:
                 mouse_pos = pygame.mouse.get_pos()
