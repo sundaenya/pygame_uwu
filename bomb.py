@@ -14,8 +14,9 @@ class Bomb(pygame.sprite.Sprite):
         self.rect.center = player.rect.center
         self.speed = speed
         self.fuse = fuse
-        sound.play('data/sounds/pew.wav', 0.2)
-
+        s = pygame.mixer.Sound('data/sounds/pew.wav')
+        s.set_volume(0.2)
+        s.play()
         try:
             angle = math.atan2(target.rect.centery - player.rect.centery, target.rect.centerx - player.rect.centerx)
             self.dx = math.cos(angle) * self.speed
