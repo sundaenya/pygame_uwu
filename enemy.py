@@ -1,39 +1,85 @@
-# enemy.py
-
 import pygame
 import math
-from spatial_grid import SpatialGrid  # Ensure this import is correct based on your project structure
+import sound
+
+tree_size = 350
 
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, pos, etype, grid):
         super().__init__()
         self.type = etype
+        self.state = 'moving'
         match self.type:
             case 'basic':
-                self.original_image = pygame.transform.scale(pygame.image.load('./data/Crab_Frame_1.png'), (100, 100))
+                self.original_image = pygame.transform.scale(pygame.image.load('data/crab/Crab_Frame_1.png'), (100, 100))
                 self.speed = 3
                 self.health = 5
+                self.max_health = 5
                 self.damage_amount = 2
+                self.xp = 2
             case 'heavy':
-                self.original_image = pygame.transform.scale(pygame.image.load('./data/Crab_Frame_1.png'), (200, 200))
+                self.original_image = pygame.transform.scale(pygame.image.load('data/crab/Crab_Frame_1.png'), (200, 200))
                 self.speed = 2
                 self.health = 40
+                self.max_health = 40
                 self.damage_amount = 20
+                self.xp = 5
+                self.walk_frame_1 = self.original_image
+                self.walk_frame_2 = pygame.transform.scale(pygame.image.load('data/crab/Crab_Frame_2.png'), (200, 200))
+                self.walk_frame_3 = pygame.transform.scale(pygame.image.load('data/crab/Crab_Frame_3.png'), (200, 200))
+                self.current_frame = 1
+                self.frame_timer = pygame.time.get_ticks()
+            case 'tree':
+                self.original_image = pygame.transform.flip(pygame.transform.scale(pygame.image.load('data/tree/Tree_Frame_1.png'), (tree_size, tree_size)), True, False)
+                self.walk_frame_1 = pygame.transform.flip(pygame.transform.scale(pygame.image.load('data/tree/Tree_Frame_Walking_1.png'), (tree_size, tree_size)), True, False)
+                self.walk_frame_2 = pygame.transform.flip(pygame.transform.scale(pygame.image.load('data/tree/Tree_Frame_Walking_2.png'), (tree_size, tree_size)), True, False)
+                self.speed = 0
+                self.health = 200
+                self.max_health = 200
+                self.damage_amount = 0
+                self.xp = 20
+                self.state = 'sleep'
+                self.countdown = 20
+                self.current_frame = 1
+                self.frame_timer = pygame.time.get_ticks()
         self.image = self.original_image.copy()
         self.rect = self.image.get_rect()
         self.rect.center = pos
-        self.grid = grid  # Reference to the spatial grid
+        self.grid = grid
         self.grid.add(self)
         self.flash_time = 0
+        self.direction = 'right'
 
-    def update(self, player):
+    def change_direction(self):
+        self.original_image = pygame.transform.flip(self.original_image, True, False)
+        self.image = pygame.transform.flip(self.image, True, False)
+        if self.type == 'tree':
+            self.walk_frame_1 = pygame.transform.flip(self.walk_frame_1, True, False)
+            self.walk_frame_2 = pygame.transform.flip(self.walk_frame_2, True, False)
+
+        if self.type == 'heavy':
+            self.walk_frame_1 = pygame.transform.flip(self.walk_frame_1, True, False)
+            self.walk_frame_2 = pygame.transform.flip(self.walk_frame_2, True, False)
+            self.walk_frame_3 = pygame.transform.flip(self.walk_frame_3, True, False)
+
+    def is_player_left_or_right(player, enemy):
+        if player.rect.centerx < enemy.rect.centerx:
+            return "left"
+        else:
+            return "right"
+
+    def update(self, player, camera):
         self.grid.update(self)
 
         if self.flash_time and pygame.time.get_ticks() - self.flash_time > 10:
             self.image = self.original_image.copy()
             self.flash_time = 0
 
-        # Movement towards the player
+        direction = self.is_player_left_or_right(player)
+        if self.direction != direction and self.speed != 0:
+            self.change_direction()
+            self.direction = direction
+
         dx, dy = player.rect.centerx - self.rect.centerx, player.rect.centery - self.rect.centery
         dist = math.hypot(dx, dy)
         if dist != 0:
@@ -41,11 +87,59 @@ class Enemy(pygame.sprite.Sprite):
             self.rect.x += dx * self.speed
             self.rect.y += dy * self.speed
 
-        # Check and resolve overlaps
         overlapping_enemies = self.grid.get_nearby(self)
         for enemy in overlapping_enemies:
             if enemy != self and self.rect.colliderect(enemy.rect):
                 self.resolve_overlap(enemy)
+
+        distance = self.get_distance(player.rect.center)
+
+        if distance <= 500 and self.state == 'sleep' and player.xp > 20:
+            self.state = 'awake'
+            camera.shake(50, 15)
+            sound.play('./data/sounds/earthquake1.mp3', 2)
+            self.image = pygame.transform.flip(pygame.transform.scale(pygame.image.load('data/tree/Tree_Frame_wakeup1.png'), (tree_size, tree_size)), True, False)
+
+        if self.type == 'tree' and self.state == 'awake':
+            self.countdown -= 1
+
+        if self.type == 'tree' and self.countdown == 10:
+            self.image = pygame.transform.flip(pygame.transform.scale(pygame.image.load('data/tree/Tree_Frame_wakeup2.png'), (tree_size + 1, tree_size + 1)),True, False)
+
+        if self.type == 'tree' and self.countdown <= 0 and self.speed <= 0:
+            self.speed = 1
+            self.damage_amount = 25
+            self.original_image = pygame.transform.flip(pygame.transform.scale(pygame.image.load('data/tree/Tree_Frame_Walking_2.png'),(tree_size, tree_size)), True, False)
+            self.image = pygame.transform.flip(pygame.transform.scale(pygame.image.load('data/tree/Tree_Frame_Walking_2.png'), (tree_size, tree_size)), True, False)
+
+        if self.type == 'tree' and self.state == 'awake' and self.speed > 0:
+            current_time = pygame.time.get_ticks()
+            if current_time - self.frame_timer >= 300:
+                self.frame_timer = current_time
+                self.current_frame = 2 if self.current_frame == 1 else 1
+                self.image = self.walk_frame_1 if self.current_frame == 1 else self.walk_frame_2
+
+        if self.type == 'heavy':
+            current_time = pygame.time.get_ticks()
+            if current_time - self.frame_timer >= 200:
+                self.frame_timer = current_time
+
+                self.current_frame = (self.current_frame % 4) + 1
+                print(self.current_frame)
+
+                if self.current_frame == 1:
+                    self.image = self.walk_frame_1
+                elif self.current_frame == 2:
+                    self.image = self.walk_frame_2
+                elif self.current_frame == 3:
+                    self.image = self.walk_frame_3
+                else:
+                    self.image = self.walk_frame_2
+
+    def get_distance(self, player_pos):
+        dx = self.rect.centerx - player_pos[0]
+        dy = self.rect.centery - player_pos[1]
+        return math.sqrt(dx ** 2 + dy ** 2)
 
     def resolve_overlap(self, other):
         dx = self.rect.centerx - other.rect.centerx
@@ -57,18 +151,24 @@ class Enemy(pygame.sprite.Sprite):
         if overlap > 0:
             dx /= distance
             dy /= distance
-            self.rect.x += dx * overlap / 2
-            self.rect.y += dy * overlap / 2
-            other.rect.x -= dx * overlap / 2
-            other.rect.y -= dy * overlap / 2
+            if self.speed != 0:
+                self.rect.x += dx * overlap / 2
+                self.rect.y += dy * overlap / 2
+            if other.speed != 0:
+                other.rect.x -= dx * overlap / 2
+                other.rect.y -= dy * overlap / 2
 
-    def damage(self, amount):
+    def damage(self, amount, player):
+        if self.speed == 0:
+            return
+
         self.health -= amount
 
-        self.flash_red()
+        # self.flash_red()
 
         if self.health <= 0:
             self.die()
+            player.give_xp(self.xp)
 
     def flash_red(self):
         self.image.fill((255, 0, 0), special_flags=pygame.BLEND_ADD)
@@ -79,4 +179,4 @@ class Enemy(pygame.sprite.Sprite):
         self.kill()
 
     def get_pos(self):
-        return self.rect.centerx, self.rect.centery
+        return self.rect.topleft

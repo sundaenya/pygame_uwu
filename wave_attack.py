@@ -11,7 +11,7 @@ class Wave_Attack(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
         self.speed = 10
-        sound.play('data/pew.wav', 0.2)
+        # sound.play('data/sounds/pew.wav', 0.2)
 
         # Calculate direction
         angle = math.atan2(target_y - y, target_x - x)
