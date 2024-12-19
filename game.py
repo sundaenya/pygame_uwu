@@ -76,7 +76,7 @@ def set_difficulty(xp):
 def main():
     clock = pygame.time.Clock()
     sound.bg_music(0.05)
-    min_range = 300
+    min_range = 500
     player = Player(screen_width // 2, screen_height // 2)
     render.add_to_group(None, player)
 
