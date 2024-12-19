@@ -10,6 +10,8 @@ from camera import Camera
 from enums import GameSettings, Difficulty
 from collision import *
 from spatial_grid import SpatialGrid
+from wave_attack import Wave_Attack
+from weapon import Weapon
 from wisp import Wisp
 from random import randrange
 from render import screen
@@ -72,7 +74,6 @@ def set_difficulty(xp):
 
     return difficulty
 
-
 def main():
     clock = pygame.time.Clock()
     sound.bg_music(0.05)
@@ -83,13 +84,17 @@ def main():
     game_over = False
 
     FIRE = pygame.USEREVENT + 1
-    pygame.time.set_timer(FIRE, 200)
+    pygame.time.set_timer(FIRE, 100)
 
     SPAWN_ENEMY = pygame.USEREVENT + 2
     pygame.time.set_timer(SPAWN_ENEMY, 100)
 
-    wisp = Wisp(player, 250)
+    wisp = Wisp(player, 250, 0.5)
     render.add_to_group('pbullets', wisp)
+
+    gun = Weapon(5, 'bullet', True)
+    beam = Weapon(50, 'beam', True)
+    
 
     running = True
     while running:
@@ -101,9 +106,10 @@ def main():
                 sys.exit()
 
             elif event.type == FIRE:
-                closest_enemy = player.get_closest_enemy(render.enemies)
-                bullet = Bullet(player, closest_enemy)
-                render.add_to_group('bullets', bullet)
+                if not game_over:
+                    closest_enemy = player.get_closest_enemy(render.enemies)
+                    gun.fire(player, closest_enemy)
+                    beam.fire(player, closest_enemy)
 
             elif event.type == pygame.MOUSEBUTTONDOWN and not game_over:
                 mouse_pos = pygame.mouse.get_pos()
@@ -124,8 +130,6 @@ def main():
                 enemy = Enemy((spawn_x, spawn_y), random.choice(('basic', 'heavy')), spatial_grid)
                 render.add_to_group('enemies', enemy)
 
-                print(difficulty)
-
         if not game_over:
             keys = pygame.key.get_pressed()
             player.update(keys)
@@ -133,6 +137,7 @@ def main():
             if keys[pygame.K_ESCAPE]:
                 running = False
                 pygame.quit()
+                sys.exit()
             if keys[pygame.K_SPACE]:
                 running = False
             if keys[pygame.K_m]:
@@ -147,6 +152,7 @@ def main():
                         game_over = True
             render.bullets.update()
             render.pbullets.update()
+            render.other.update()
 
             check_bullet_collisions(render.bullets, render.enemies, player)
             check_pbullet_collisions(render.pbullets, render.enemies, player)
