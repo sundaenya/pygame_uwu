@@ -13,3 +13,9 @@ class GameSettings:
     WORLD_HEIGHT = 4096
     PLAYER_SIZE = 100
     PLAYER_HEALTH = 1000
+
+class Level:
+    ONE = 1
+    TWO  = 2
+    THREE = 3
+    FOUR = 4

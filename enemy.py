@@ -25,6 +25,8 @@ class Enemy(pygame.sprite.Sprite):
                 self.walk_frame_3 = pygame.transform.scale(pygame.image.load('data/fox/Fox_Frame_3.png'), (BASIC_SIZE, BASIC_SIZE))
                 self.current_frame = 1
                 self.frame_timer = pygame.time.get_ticks()
+                self.hitbox_width = BASIC_SIZE * 0.75
+                self.hitbox_height = BASIC_SIZE * 0.7
             case 'heavy':
                 self.original_image = pygame.transform.scale(pygame.image.load('data/crab/Crab_Frame_1.png'), (HEAVY_SIZE, HEAVY_SIZE))
                 self.speed = 2
@@ -37,6 +39,8 @@ class Enemy(pygame.sprite.Sprite):
                 self.walk_frame_3 = pygame.transform.scale(pygame.image.load('data/crab/Crab_Frame_3.png'), (HEAVY_SIZE, HEAVY_SIZE))
                 self.current_frame = 1
                 self.frame_timer = pygame.time.get_ticks()
+                self.hitbox_width = BASIC_SIZE * 0.85
+                self.hitbox_height = BASIC_SIZE * 0.85
             case 'tree':
                 self.original_image = pygame.transform.flip(pygame.transform.scale(pygame.image.load('data/tree/Tree_Frame_1.png'), (TREE_SIZE, TREE_SIZE)), True, False)
                 self.walk_frame_1 = pygame.transform.flip(pygame.transform.scale(pygame.image.load('data/tree/Tree_Frame_Walking_1.png'), (TREE_SIZE, TREE_SIZE)), True, False)
@@ -50,14 +54,18 @@ class Enemy(pygame.sprite.Sprite):
                 self.countdown = 20
                 self.current_frame = 1
                 self.frame_timer = pygame.time.get_ticks()
+                self.hitbox_width = BASIC_SIZE * 0.5
+                self.hitbox_height = BASIC_SIZE * 0.75
 
-        # Create the image and adjust the hitbox
         self.image = self.original_image.copy()
         self.rect = self.image.get_rect()
         self.rect.center = pos
 
-        # Adjust hitbox size (half of the enemy size)
-        self.hitbox = pygame.Rect(self.rect.centerx - self.rect.width // 3, self.rect.centery - self.rect.height // 3, self.rect.width // 1.5, self.rect.height // 1.5)
+        self.hitbox = pygame.Rect(
+            self.rect.centerx - self.hitbox_width // 2,
+            self.rect.centery - self.hitbox_height // 2,
+            self.hitbox_width,
+            self.hitbox_height,)
 
         self.grid = grid
         self.grid.add(self)
@@ -102,7 +110,6 @@ class Enemy(pygame.sprite.Sprite):
             self.rect.x += dx * self.speed
             self.rect.y += dy * self.speed
 
-        # Update hitbox position to match the movement
         self.hitbox.center = self.rect.center
 
         overlapping_enemies = self.grid.get_nearby(self)
@@ -180,7 +187,6 @@ class Enemy(pygame.sprite.Sprite):
         return math.sqrt(dx ** 2 + dy ** 2)
 
     def resolve_overlap(self, other):
-        # Resolve overlap based on hitboxes, not the actual sprite rects
         dx = self.hitbox.centerx - other.hitbox.centerx
         dy = self.hitbox.centery - other.hitbox.centery
         distance = math.hypot(dx, dy)
@@ -203,18 +209,13 @@ class Enemy(pygame.sprite.Sprite):
 
         self.health -= amount
 
-        # self.flash_red()
-
         if self.health <= 0:
             self.die()
             player.give_xp(self.xp)
 
-    def flash_red(self):
-        self.is_flashing = True
-        self.flash_time = pygame.time.get_ticks()
-
     def die(self):
         self.grid.remove(self)
+        self.hitbox = pygame.Rect(0, 0, 0, 0)
         self.kill()
 
     def get_pos(self):
