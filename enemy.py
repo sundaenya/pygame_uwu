@@ -142,7 +142,12 @@ class Enemy(pygame.sprite.Sprite):
         if distance <= 500 and self.state == State.SLEEP and player.xp > 20:
             self.state = State.AWAKE
             camera.shake(50, 15)
-            sound.play('./data/sounds/earthquake1.mp3', 2)
+            # sound.play('./data/sounds/earthquake1.mp3', 2)
+            
+            s = pygame.mixer.Sound('./data/sounds/earthquake1.mp3')
+            s.set_volume(2)
+            s.play()
+
             self.image = pygame.transform.flip(
                 pygame.transform.scale(pygame.image.load('data/tree/Tree_Frame_wakeup1.png'), (TREE_SIZE, TREE_SIZE)),
                 True, False)
