@@ -7,7 +7,7 @@ from player import Player
 from enemy import Enemy
 from bullet import Bullet
 from camera import Camera
-from enums import GameSettings, Difficulty
+from enums import GameSettings, Difficulty, Level
 from collision import *
 from spatial_grid import SpatialGrid
 from wisp import Wisp
@@ -76,13 +76,13 @@ for _ in range(10):  # Add 10 trees
 def set_difficulty(xp):
     difficulty = Difficulty.EASY
 
-    if 200 < xp < 700:
+    if Level.ONE < xp < Level.TWO:
         difficulty = Difficulty.MEDIUM
-    elif 700 < xp < 1200:
+    elif Level.TWO < xp < Level.THREE:
         difficulty = Difficulty.HARD
-    elif 1200 < xp < 2000:
+    elif Level.THREE < xp < Level.FOUR:
         difficulty = Difficulty.EXTREMELY_HARD
-    elif 2000 < xp:
+    elif Level.FOUR < xp:
         difficulty = Difficulty.IMPOSSIBLE
 
     return difficulty
@@ -127,7 +127,7 @@ def main():
                 enemy = Enemy(world_pos, enemy_type, spatial_grid)
                 render.add_to_group('enemies', enemy)
 
-            elif event.type == SPAWN_ENEMY and not game_over and render.get_enemy_number() < 20 * difficulty:
+            elif event.type == SPAWN_ENEMY and not game_over and render.get_enemy_number() < 25 * difficulty:
                 while True:
                     spawn_x, spawn_y = randrange(world_width), randrange(world_height)
                     distance = math.sqrt((spawn_x - player.rect.centerx) ** 2 + (spawn_y - player.rect.centery) ** 2)
@@ -138,8 +138,6 @@ def main():
                     render.add_to_group('enemies', Enemy((spawn_x, spawn_y),'tree', spatial_grid))
                 enemy = Enemy((spawn_x, spawn_y), random.choice(('basic', 'heavy')), spatial_grid)
                 render.add_to_group('enemies', enemy)
-
-                print(difficulty)
 
         if not game_over:
             keys = pygame.key.get_pressed()

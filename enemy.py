@@ -2,6 +2,12 @@ import pygame
 import math
 import sound
 
+class EnemyType:
+    MUSHROOM = 'mushroom'
+    FOX = 'fox'
+    TREE = 'tree'
+
+
 TREE_SIZE = 350
 BASIC_SIZE = 100
 HEAVY_SIZE = 200
