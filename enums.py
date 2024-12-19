@@ -1,9 +1,9 @@
 class Difficulty:
-    EASY = 1
-    MEDIUM = 2
-    HARD = 3
-    EXTREMELY_HARD = 4
-    IMPOSSIBLE = 5
+    EASY = 1.1
+    MEDIUM = 1.2
+    HARD = 1.3
+    EXTREMELY_HARD = 1.4
+    IMPOSSIBLE = 1.5
 
 
 class GameSettings:

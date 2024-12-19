@@ -76,13 +76,13 @@ for _ in range(10):  # Add 10 trees
 def set_difficulty(xp):
     difficulty = Difficulty.EASY
 
-    if 200 < xp < 700:
+    if 25 < xp < 200:
         difficulty = Difficulty.MEDIUM
-    elif 700 < xp < 1200:
+    elif 200 < xp < 300:
         difficulty = Difficulty.HARD
-    elif 1200 < xp < 2000:
+    elif 300 < xp < 500:
         difficulty = Difficulty.EXTREMELY_HARD
-    elif 2000 < xp:
+    elif 500 < xp:
         difficulty = Difficulty.IMPOSSIBLE
 
     return difficulty

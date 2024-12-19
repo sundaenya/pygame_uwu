@@ -15,7 +15,7 @@ class Enemy(pygame.sprite.Sprite):
         match self.type:
             case 'basic':
                 self.original_image = pygame.transform.scale(pygame.image.load('data/fox/Fox_Frame_1.png'), (BASIC_SIZE, BASIC_SIZE))
-                self.speed = 4
+                self.speed = 6
                 self.health = 5
                 self.max_health = 5
                 self.damage_amount = 2
@@ -112,7 +112,7 @@ class Enemy(pygame.sprite.Sprite):
 
         distance = self.get_distance(player.rect.center)
 
-        if distance <= 500 and self.state == 'sleep' and player.xp > 20:
+        if distance <= 500 and self.state == 'sleep' and player.xp > 25:
             self.state = 'awake'
             camera.shake(50, 15)
             sound.play('./data/sounds/earthquake1.mp3', 2)
