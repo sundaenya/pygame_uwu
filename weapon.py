@@ -24,6 +24,8 @@ class Weapon(pygame.sprite.Sprite):
                     case 'beam':
                         render.add_to_group('other', Beam(player, target, (255, 0, 0)))
                         render.add_to_group('pbullets', Bullet(player, target, (0, 0, 0, 0), 50, 10))
+                    case 'bomb':
+                        pass
                     case _:
                         pass
                 self.rate = self.firerate

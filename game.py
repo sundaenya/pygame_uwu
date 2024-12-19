@@ -109,6 +109,8 @@ def main():
 
     gun = Weapon(5, 'bullet', True)
     beam = Weapon(50, 'beam', True)
+    bomb = Weapon(100, 'bomb', True)
+
 
     running = True
     while running:
@@ -124,6 +126,7 @@ def main():
                     closest_enemy = player.get_closest_enemy(render.enemies)
                     gun.fire(player, closest_enemy)
                     beam.fire(player, closest_enemy)
+                    bomb.fire(player, closest_enemy)
 
             elif event.type == pygame.MOUSEBUTTONDOWN and not game_over:
                 mouse_pos = pygame.mouse.get_pos()
