@@ -4,19 +4,24 @@ from enums import GameSettings
 import sound
 
 class Wave_Attack(pygame.sprite.Sprite):
-    def __init__(self, x, y, target_x, target_y):
+    def __init__(self, player, target):
         super().__init__()
-        self.image = pygame.Surface((10, 10), pygame.SRCALPHA)
-        pygame.draw.circle(self.image, (255, 255, 0), (5, 5), 5)
+        self.image = pygame.Surface((100, 100), pygame.SRCALPHA)
+        pygame.draw.circle(self.image, (255, 255, 0), (50, 50), 50)
         self.rect = self.image.get_rect()
-        self.rect.center = (x, y)
+        self.rect.center = player.rect.center
         self.speed = 10
+        self.damage = 1
         # sound.play('data/sounds/pew.wav', 0.2)
 
         # Calculate direction
-        angle = math.atan2(target_y - y, target_x - x)
-        self.dx = math.cos(angle) * self.speed
-        self.dy = math.sin(angle) * self.speed
+        try:
+            angle = math.atan2(target.rect.centery - player.rect.centery, target.rect.centerx - player.rect.centerx)
+            self.dx = math.cos(angle) * self.speed
+            self.dy = math.sin(angle) * self.speed
+        except:
+            self.dx = 0
+            self.dy = -self.speed
 
     def update(self):
         self.rect.x += self.dx
