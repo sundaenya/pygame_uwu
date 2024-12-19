@@ -11,11 +11,10 @@ class Explosion(pygame.sprite.Sprite):
         self.rect.center = target.rect.center
         self.damage = damage
         self.duration = duration
-        self.switch = True
 
     def update(self):
         self.duration -= 1
-        if self.duration < 10 and self.switch:
+        if self.duration == 10:
             self.image = pygame.transform.scale(pygame.image.load('data/Flask_Boom_Frame_2.png'), (self.rect.width, self.rect.height))
             self.switch = False
         if self.duration <= 0:
