@@ -8,7 +8,7 @@ class Explosion(pygame.sprite.Sprite):
         super().__init__()
         self.image = pygame.transform.scale(pygame.image.load('data/explode.png'), (diameter, diameter))
         self.rect = self.image.get_rect()
-        self.rect.center = target
+        self.rect.center = target.rect.center
         self.damage = damage
         self.duration = duration
 

@@ -4,8 +4,10 @@ import math
 class Wisp(pygame.sprite.Sprite):
     def __init__(self, player, radius, speed):
         super().__init__()
-        self.image = pygame.Surface((20, 20), pygame.SRCALPHA)
-        pygame.draw.circle(self.image, (0, 255, 0), (5, 5), 25)  # Draw a green circle
+        # self.image = pygame.Surface((20, 20), pygame.SRCALPHA)
+        # pygame.draw.circle(self.image, (0, 255, 0), (5, 5), 25)  # Draw a green circle
+        self.image = pygame.transform.scale(pygame.image.load('data/Wisp.png'), (50, 50))
+
         self.rect = self.image.get_rect()
         self.player = player
         self.radius = radius

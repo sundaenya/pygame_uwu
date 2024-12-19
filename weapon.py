@@ -3,6 +3,7 @@ import pygame
 from beam import Beam
 from bomb import Bomb
 from bullet import Bullet
+from lightning import Lightning
 import render
 from wisp import Wisp
 
@@ -26,6 +27,8 @@ class Weapon(pygame.sprite.Sprite):
                     render.add_to_group('pbullets', Bullet(player, target, (0, 0, 0, 0), 50, 5))
                 case 'bomb':
                     render.add_to_group('other', Bomb(player, target, (0, 0, 255), 7, 1, 40))
+                case 'lightning':
+                    render.add_to_group('other', Lightning(target, 20))
                 case _:
                     pass
             self.rate = self.firerate
