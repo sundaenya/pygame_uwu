@@ -1,5 +1,6 @@
 import pygame
 from enums import GameSettings
+import sound
 
 animationList = []
 animationStops = 5

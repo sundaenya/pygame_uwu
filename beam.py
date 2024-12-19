@@ -1,6 +1,5 @@
 import pygame
 import math
-from bullet import Bullet
 
 class Beam(pygame.sprite.Sprite):
     def __init__(self, player, target, color):
@@ -18,13 +17,14 @@ class Beam(pygame.sprite.Sprite):
         self.create_beam()
 
     def create_beam(self):
-        beam_length = 2000  # Define the length of the beam
-        beam_width = 5  # Define the width of the beam
+        beam_length = 1500  # Define the length of the beam
+        beam_width = 30  # Define the width of the beam
         start_pos = (self.player.rect.centerx, self.player.rect.centery)
         
+        self.image = pygame.transform.scale(pygame.image.load('data/beam.png'), (beam_length, beam_width))
         # Create a surface for the beam
-        self.image = pygame.Surface((beam_length, beam_width), pygame.SRCALPHA)
-        self.image.fill(self.color)  # Fill the beam with the specified color
+        # self.image = pygame.Surface((beam_length, beam_width), pygame.SRCALPHA)
+        # self.image.fill(self.color)  # Fill the beam with the specified color
         
         # Rotate the beam surface to match the angle
         self.image = pygame.transform.rotate(self.image, -math.degrees(self.angle))
