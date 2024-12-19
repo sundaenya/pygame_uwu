@@ -110,7 +110,7 @@ def main():
     beam = Weapon(50, 'beam', True)
     bomb = Weapon(10, 'bomb', True)
     lightning = Weapon(50, 'lightning', True)
-    weapon_list = [lightning]
+    weapon_list = [bomb]
 
     running = True
     while running:
