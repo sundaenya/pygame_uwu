@@ -17,6 +17,7 @@ from random import randrange
 from render import screen
 from button import Button
 import math
+from sound import Sound
 
 # Initialize Pygame
 pygame.init()
@@ -88,14 +89,12 @@ def set_difficulty(xp):
 
     return difficulty
 
-
+sound = Sound()
 def main():
     clock = pygame.time.Clock()
-    sound.bg_music(0.05)
     min_range = 500
     player = Player(screen_width // 2, screen_height // 2)
     render.add_to_group(None, player)
-
     game_over = False
 
     FIRE = pygame.USEREVENT + 1
@@ -188,6 +187,54 @@ def main():
 
         clock.tick(60)
 
+def options():
+    image = pygame.image.load('data/button.png')
+
+    w = 400
+    h = 300
+
+    n_image = pygame.transform.scale(image, (w, h))
+    while True: 
+        screen.fill('blue')
+
+        MENU_MOUSE_POS = pygame.mouse.get_pos()
+
+        OPTIONS_TEXT = get_font(50).render('OPTIONS', True, 'red')
+        OPTIONS_RECT = OPTIONS_TEXT.get_rect(center = (screen_width//2, 100))
+        screen.blit(OPTIONS_TEXT, OPTIONS_RECT)
+        keys = pygame.key.get_pressed()
+
+        SCREEN_BUTTON = Button(image=n_image,
+                             pos=(screen_width // 2, 300), text_input="PLAY", font=get_font(75), base_color="#d7fcd4",
+                             hovering_color="White")
+        VOLUP_BUTTON = Button(image=n_image, pos=(screen_width // 2, 600),
+                                text_input="+VOL", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+        VOLDOWN_BUTTON = Button(image=n_image, pos=(screen_width // 2, 900),
+                                text_input="-VOL", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+        MAIN_MENU_BUTTON = Button(image=n_image, pos=(screen_width // 2, 900),
+                                text_input="PLAY", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+
+        for button in [SCREEN_BUTTON, VOLUP_BUTTON, VOLDOWN_BUTTON]:
+            button.changeColor(MENU_MOUSE_POS)
+            button.update(screen)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if SCREEN_BUTTON.checkForInput(MENU_MOUSE_POS):
+                    main()
+                if VOLUP_BUTTON.checkForInput(MENU_MOUSE_POS):
+                    sound.volume += 0.05
+                    sound.bg_music(sound.volume)
+                if MAIN_MENU_BUTTON.checkForInput(MENU_MOUSE_POS):
+                    sound.volume -= 0.05
+                    sound.bg_music(sound.volume)
+                # if VOLDOWN_BUTTON.checkForInput(MENU_MOUSE_POS):
+                #     main()
+        pygame.display.update()
+
 
 def main_menu():
     pygame.display.set_caption('Menu')
@@ -230,7 +277,7 @@ def main_menu():
                 if PLAY_BUTTON.checkForInput(MENU_MOUSE_POS):
                     main()
                 if OPTIONS_BUTTON.checkForInput(MENU_MOUSE_POS):
-                    main()
+                    options()
                 if QUIT_BUTTON.checkForInput(MENU_MOUSE_POS):
                     pygame.quit()
                     sys.exit()
