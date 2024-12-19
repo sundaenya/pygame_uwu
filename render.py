@@ -89,7 +89,7 @@ def render(camera, player):
     #     screen.blit(obj.image, offset_pos)
 
     draw_health_bar(50, 50, GameSettings.PLAYER_HEALTH, player.health, 200, 20)
-    show_message(str(player.xp) + ' XP', WHITE, 1800, 50)
+    show_message(str(player.xp) + ' XP', WHITE, 1700, 50)
 
     for enemy in enemies:
         if enemy.max_health != enemy.health:
