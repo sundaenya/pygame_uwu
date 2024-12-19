@@ -42,9 +42,15 @@ class Enemy(pygame.sprite.Sprite):
                 self.countdown = 20
                 self.current_frame = 1
                 self.frame_timer = pygame.time.get_ticks()
+
+        # Create the image and adjust the hitbox
         self.image = self.original_image.copy()
         self.rect = self.image.get_rect()
         self.rect.center = pos
+
+        # Adjust hitbox size (half of the enemy size)
+        self.hitbox = pygame.Rect(self.rect.centerx - self.rect.width // 3, self.rect.centery - self.rect.height // 3, self.rect.width // 1.5, self.rect.height // 1.5)
+
         self.grid = grid
         self.grid.add(self)
         self.flash_time = 0
@@ -87,9 +93,12 @@ class Enemy(pygame.sprite.Sprite):
             self.rect.x += dx * self.speed
             self.rect.y += dy * self.speed
 
+        # Update hitbox position to match the movement
+        self.hitbox.center = self.rect.center
+
         overlapping_enemies = self.grid.get_nearby(self)
         for enemy in overlapping_enemies:
-            if enemy != self and self.rect.colliderect(enemy.rect):
+            if enemy != self and self.hitbox.colliderect(enemy.hitbox):
                 self.resolve_overlap(enemy)
 
         distance = self.get_distance(player.rect.center)
@@ -142,12 +151,13 @@ class Enemy(pygame.sprite.Sprite):
         return math.sqrt(dx ** 2 + dy ** 2)
 
     def resolve_overlap(self, other):
-        dx = self.rect.centerx - other.rect.centerx
-        dy = self.rect.centery - other.rect.centery
+        # Resolve overlap based on hitboxes, not the actual sprite rects
+        dx = self.hitbox.centerx - other.hitbox.centerx
+        dy = self.hitbox.centery - other.hitbox.centery
         distance = math.hypot(dx, dy)
         if distance == 0:
             distance = 1
-        overlap = (self.rect.width / 2 + other.rect.width / 2) - distance
+        overlap = (self.hitbox.width / 2 + other.hitbox.width / 2) - distance
         if overlap > 0:
             dx /= distance
             dy /= distance
