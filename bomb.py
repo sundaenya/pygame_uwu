@@ -8,9 +8,6 @@ import sound
 class Bomb(pygame.sprite.Sprite):
     def __init__(self, player, target, color, speed, damage, fuse):
         super().__init__()
-        # self.image = pygame.Surface((10, 10), pygame.SRCALPHA)
-        # pygame.draw.circle(self.image, color, (5, 5), 5)
-
         self.image = pygame.transform.scale(pygame.image.load('data/Bomb_Flask.png'), (50, 50))
         self.rect = self.image.get_rect()
         self.rect.center = player.rect.center

@@ -11,8 +11,8 @@ from tiles import *
 # Define colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
+RED = (188, 71, 73)
+GREEN = (107, 170, 117)
 
 pygame.init()
 bullets = pygame.sprite.Group()
