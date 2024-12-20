@@ -4,6 +4,7 @@ from tiles import *
 import random
 import sound
 import render
+import weapon
 from player import Player
 from enemy import Enemy, EnemyType
 from camera import Camera
@@ -55,6 +56,8 @@ class StaticObject(pygame.sprite.Sprite):
 
 player = Player(world_width // 2, world_width // 2)
 enemies = [player]
+weapon.active_weapon_list = weapon.weapon_list[:1]
+wisp = Wisp(player, 200, 0.1)
 
 for _ in range(10):  # Add 10 trees
     while True:
@@ -74,17 +77,24 @@ for _ in range(10):  # Add 10 trees
             break
 
 
-def set_difficulty(xp):
+def set_difficulty(xp, wisp):
     if xp < Level.ONE:
         difficulty = Difficulty.EASY
+        weapon.active_weapon_list = weapon.weapon_list[:1]
+        wisp.kill()
     elif Level.ONE < xp < Level.TWO:
         difficulty = Difficulty.MEDIUM
+        weapon.active_weapon_list = weapon.weapon_list[:1]
+        render.add_to_group('pbullets', wisp)
     elif Level.TWO < xp < Level.THREE:
         difficulty = Difficulty.HARD
+        weapon.active_weapon_list = weapon.weapon_list[:2]
     elif Level.THREE < xp < Level.FOUR:
         difficulty = Difficulty.EXTREMELY_HARD
+        weapon.active_weapon_list = weapon.weapon_list[:3]
     elif Level.FOUR < xp:
         difficulty = Difficulty.IMPOSSIBLE
+        weapon.active_weapon_list = weapon.weapon_list[:4]
 
     return difficulty
 
@@ -103,14 +113,7 @@ def main():
     SPAWN_ENEMY = pygame.USEREVENT + 2
     pygame.time.set_timer(SPAWN_ENEMY, 100)
 
-    wisp = Wisp(player, 250, 0.1)
     render.add_to_group('pbullets', wisp)
-
-    gun = Weapon(5, 'bullet', True)
-    beam = Weapon(50, 'beam', True)
-    bomb = Weapon(10, 'bomb', True)
-    lightning = Weapon(50, 'lightning', True)
-    weapon_list = [bomb]
 
     running = True
     while running:
@@ -124,8 +127,8 @@ def main():
                 
                 if not game_over:
                     closest_enemy = player.get_closest_enemy(render.enemies)
-                    for weapon in weapon_list:
-                        weapon.fire(player, closest_enemy)
+                    for w in weapon.active_weapon_list:
+                        w.fire(player, closest_enemy)
 
             elif event.type == pygame.MOUSEBUTTONDOWN and not game_over:
                 mouse_pos = pygame.mouse.get_pos()
@@ -146,7 +149,7 @@ def main():
                 enemy = Enemy((spawn_x, spawn_y), random.choice((EnemyType.FOX, EnemyType.CRAB, EnemyType.MUSHROOM)), spatial_grid, player)
                 render.add_to_group('enemies', enemy)
                 
-                difficulty = set_difficulty(player.xp)
+                difficulty = set_difficulty(player.xp, wisp)
 
         if not game_over:
             keys = pygame.key.get_pressed()

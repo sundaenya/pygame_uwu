@@ -16,9 +16,6 @@ class Bomb(pygame.sprite.Sprite):
         self.rect.center = player.rect.center
         self.speed = speed
         self.fuse = fuse
-        s = pygame.mixer.Sound('data/sounds/pew.wav')
-        s.set_volume(0.2)
-        s.play()
         try:
             angle = math.atan2(target.rect.centery - player.rect.centery, target.rect.centerx - player.rect.centerx)
             self.dx = math.cos(angle) * self.speed
@@ -39,5 +36,8 @@ class Bomb(pygame.sprite.Sprite):
             self.explode()
 
     def explode(self):
+        s = pygame.mixer.Sound('data/sounds/bomb.wav')
+        s.set_volume(0.3)
+        s.play()
         render.add_to_group('pbullets', Explosion(self, 200, self.bomb_damage, 20))
         self.kill()

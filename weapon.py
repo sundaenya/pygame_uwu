@@ -8,11 +8,10 @@ import render
 from wisp import Wisp
 
 class Weapon(pygame.sprite.Sprite):
-    def __init__(self, firerate, bullet_type, active):
+    def __init__(self, firerate, bullet_type):
         super().__init__()
         self.firerate = firerate
         self.bullet_type = bullet_type
-        self.active = active
         self.rate = firerate
 
 
@@ -32,3 +31,10 @@ class Weapon(pygame.sprite.Sprite):
                 case _:
                     pass
             self.rate = self.firerate
+
+gun = Weapon(5, 'bullet')
+beam = Weapon(50, 'beam')
+bomb = Weapon(25, 'bomb')
+lightning = Weapon(100, 'lightning')
+weapon_list = [gun, beam, bomb, lightning]
+active_weapon_list = []
