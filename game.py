@@ -54,6 +54,7 @@ class StaticObject(pygame.sprite.Sprite):
         self.image = image
         self.rect = self.image.get_rect(topleft=pos)
 
+
 player = Player(world_width // 2, world_width // 2)
 enemies = [player]
 weapon.active_weapon_list = weapon.weapon_list[:1]
@@ -95,7 +96,10 @@ def set_difficulty(xp, wisp):
 
     return difficulty
 
+
 sound = Sound()
+
+
 def main():
     clock = pygame.time.Clock()
     min_range = 500
@@ -146,7 +150,8 @@ def main():
 
                 if render.get_number_of_trees() < 10 * difficulty:
                     render.add_to_group('enemies', Enemy((spawn_x, spawn_y), EnemyType.TREE, spatial_grid, player))
-                enemy = Enemy((spawn_x, spawn_y), random.choice((EnemyType.FOX, EnemyType.CRAB, EnemyType.MUSHROOM)), spatial_grid, player)
+                enemy = Enemy((spawn_x, spawn_y), random.choice((EnemyType.FOX, EnemyType.CRAB, EnemyType.MUSHROOM)),
+                              spatial_grid, player)
                 render.add_to_group('enemies', enemy)
                 
                 difficulty = set_difficulty(player.xp, wisp)
@@ -208,6 +213,7 @@ def main():
 
         clock.tick(60)
 
+
 def options():
     image = pygame.image.load('data/button.png')
 
@@ -215,25 +221,25 @@ def options():
     h = 300
 
     n_image = pygame.transform.scale(image, (w, h))
-    while True: 
+    while True:
         screen.fill('blue')
 
         MENU_MOUSE_POS = pygame.mouse.get_pos()
 
         OPTIONS_TEXT = get_font(50).render('OPTIONS', True, 'red')
-        OPTIONS_RECT = OPTIONS_TEXT.get_rect(center = (screen_width//2, 100))
+        OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(screen_width // 2, 100))
         screen.blit(OPTIONS_TEXT, OPTIONS_RECT)
         keys = pygame.key.get_pressed()
 
         SCREEN_BUTTON = Button(image=n_image,
-                             pos=(screen_width // 2, 300), text_input="PLAY", font=get_font(75), base_color="#d7fcd4",
-                             hovering_color="White")
+                               pos=(screen_width // 2, 300), text_input="PLAY", font=get_font(75), base_color="#d7fcd4",
+                               hovering_color="White")
         VOLUP_BUTTON = Button(image=n_image, pos=(screen_width // 2, 600),
-                                text_input="+VOL", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+                              text_input="+VOL", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
         VOLDOWN_BUTTON = Button(image=n_image, pos=(screen_width // 2, 900),
                                 text_input="-VOL", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
         MAIN_MENU_BUTTON = Button(image=n_image, pos=(screen_width // 2, 900),
-                                text_input="PLAY", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+                                  text_input="PLAY", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
 
         for button in [SCREEN_BUTTON, VOLUP_BUTTON, VOLDOWN_BUTTON]:
             button.changeColor(MENU_MOUSE_POS)

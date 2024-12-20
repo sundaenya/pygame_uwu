@@ -63,7 +63,7 @@ class Enemy(pygame.sprite.Sprite):
                 self.frames['left']['red'] = [
                     self._create_red_frame(frame) for frame in self.frames['left']['normal']
                 ]
-                self.speed = 5
+                self.speed = 5.5
                 self.health = 3
                 self.max_health = 3
                 self.damage_amount = 2
@@ -90,7 +90,7 @@ class Enemy(pygame.sprite.Sprite):
                 self.frames['left']['red'] = [
                     self._create_red_frame(frame) for frame in self.frames['left']['normal']
                 ]
-                self.speed = 4
+                self.speed = 4.5
                 self.health = 5
                 self.max_health = 5
                 self.damage_amount = 2
@@ -101,11 +101,6 @@ class Enemy(pygame.sprite.Sprite):
                 self.hitbox_width = FOX_SIZE * 0.65
                 self.hitbox_height = FOX_SIZE * 0.5
                 self.frame_rate = 150
-                # if self.is_player_left_or_right(player) == "left":
-                #     self.flip_frames()
-                #     self.direction = "left"
-                # else:
-                #     self.direction = "right"
             case EnemyType.CRAB:
                 self.original_image = pygame.transform.scale(pygame.image.load('data/crab/Crab_Frame_1.png'),
                                                              (CRAB_SIZE, CRAB_SIZE))
@@ -123,14 +118,14 @@ class Enemy(pygame.sprite.Sprite):
                 self.frames['left']['red'] = [
                     self._create_red_frame(frame) for frame in self.frames['left']['normal']
                 ]
-                self.speed = 2
+                self.speed = 3
                 self.health = 40
                 self.max_health = 40
                 self.damage_amount = 20
                 self.xp = 5
                 self.current_frame = 1
                 self.frame_timer = pygame.time.get_ticks()
-                self.hitbox_width = CRAB_SIZE * 0.65
+                self.hitbox_width = CRAB_SIZE * 0.6
                 self.hitbox_height = CRAB_SIZE * 0.5
                 self.frame_rate = 200
             case EnemyType.TREE:
@@ -265,9 +260,11 @@ class Enemy(pygame.sprite.Sprite):
             if self.state == State.AWAKE and self.speed > 0:
                 if current_time - self.frame_timer >= self.frame_rate:
                     self.frame_timer = current_time
-                    self.current_frame = (self.current_frame % 2)
-                    self.image = self.frames[self.direction][self.flashing_state][self.current_frame]
-
+                    self.current_frame = (self.current_frame % 2) + 1
+                    if self.current_frame == 1:
+                        self.image = self.frames[self.direction][self.flashing_state][0]
+                    else:
+                        self.image = self.frames[self.direction][self.flashing_state][1]
 
         else:
             if current_time - self.frame_timer >= self.frame_rate:

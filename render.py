@@ -11,8 +11,8 @@ from tiles import *
 # Define colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
+RED = (188, 71, 73)
+GREEN = (107, 170, 117)
 
 pygame.init()
 bullets = pygame.sprite.Group()
@@ -32,7 +32,8 @@ screen = pygame.display.set_mode((screen_width, screen_height), pygame.NOFRAME)
 pygame.display.set_caption('Amelia Earheart Simulator')
 crab = pygame.image.load('data/crab.png')
 spritesheet = Spritesheet('grassTileset.png')
-canvas = pygame.image.load('./data/128map.png')
+# canvas = pygame.image.load('./data/128map.png')
+canvas = pygame.image.load('./data/Double_Grass_test.png')
 world_surface = pygame.Surface((world_width, world_height))
 world_surface.fill("green")
 
