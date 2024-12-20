@@ -76,6 +76,13 @@ class Player(pygame.sprite.Sprite):
             self.current_frame = (self.current_frame + 1) % len(self.frames[self.direction])
             self.image = self.frames[self.direction][self.current_frame]
 
+        if self.direction != 'idle':
+            if self.current_frame == 1:
+                self.rect.y -= 2
+            elif self.current_frame == 2:
+                self.rect.y += 2
+
+
     def damage(self, amount):
         self.health -= amount
 
