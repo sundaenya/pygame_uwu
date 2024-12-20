@@ -15,6 +15,9 @@ class Beam(pygame.sprite.Sprite):
             self.angle = 0
         self.damage = 1
         self.create_beam()
+        s = pygame.mixer.Sound('data/sounds/pew.wav')
+        s.set_volume(0.5)
+        s.play()
 
     def create_beam(self):
         beam_length = 1500  # Define the length of the beam

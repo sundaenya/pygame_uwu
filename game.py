@@ -4,6 +4,7 @@ from tiles import *
 import random
 import sound
 import render
+import weapon
 from player import Player
 from enemy import Enemy, EnemyType
 from camera import Camera
@@ -44,7 +45,20 @@ spatial_grid = SpatialGrid(cell_size, world_width, world_height)
 
 
 def get_font(size):
-    return pygame.font.Font("C:/Windows/Fonts/arial.ttf", size)
+    return pygame.font.Font('data/Grand9K Pixel.ttf', size)
+
+def clear_all_enemies():
+    # Clear spatial grid
+    spatial_grid.clear()
+
+    # Clear sprite group
+    if hasattr(render, 'enemies'):
+        render.enemies.empty()
+
+    # Clear global list (if exists)
+    global enemies
+    if 'enemies' in globals():
+        enemies.clear()
 
 
 class StaticObject(pygame.sprite.Sprite):
@@ -55,8 +69,8 @@ class StaticObject(pygame.sprite.Sprite):
 
 
 player = Player(world_width // 2, world_width // 2)
-
 enemies = [player]
+weapon.active_weapon_list = weapon.weapon_list[:1]
 
 for _ in range(10):  # Add 10 trees
     while True:
@@ -76,20 +90,39 @@ for _ in range(10):  # Add 10 trees
             break
 
 
-def set_difficulty(xp):
-    difficulty = Difficulty.EASY
-
-    if Level.ONE < xp < Level.TWO:
+def set_difficulty(xp, wisp):
+    if xp < Level.ONE:
+        difficulty = Difficulty.EASY
+        weapon.active_weapon_list =[]
+    elif Level.ONE < xp < Level.TWO:
         difficulty = Difficulty.MEDIUM
+        weapon.active_weapon_list = weapon.weapon_list[:1]
     elif Level.TWO < xp < Level.THREE:
         difficulty = Difficulty.HARD
+        weapon.active_weapon_list = weapon.weapon_list[:2]
     elif Level.THREE < xp < Level.FOUR:
         difficulty = Difficulty.EXTREMELY_HARD
+        weapon.active_weapon_list = weapon.weapon_list[:3]
     elif Level.FOUR < xp:
         difficulty = Difficulty.IMPOSSIBLE
+        weapon.active_weapon_list = weapon.weapon_list[:4]
 
     return difficulty
 
+def reset_game():
+    global player, game_over, spatial_grid
+    player = Player(100, 100)  # Reset the player
+    player.xp = 0
+    game_over = False
+    render.bullets.empty()
+    render.pbullets.empty()
+    render.enemies.empty()
+    render.other.empty()
+    render.static_objects.empty()
+    render.all_sprites.empty()
+
+    # Clear all enemies and other entities from the grid
+    clear_all_enemies()
 
 sound = Sound()
 
@@ -100,6 +133,10 @@ def main():
     player = Player(screen_width // 2, screen_height // 2)
     render.add_to_group(None, player)
     game_over = False
+    difficulty = Difficulty.EASY
+    
+    wisp = Wisp(player, 200, 0.1)
+    render.add_to_group('pbullets', wisp)
 
     FIRE = pygame.USEREVENT + 1
     pygame.time.set_timer(FIRE, 100)
@@ -107,18 +144,10 @@ def main():
     SPAWN_ENEMY = pygame.USEREVENT + 2
     pygame.time.set_timer(SPAWN_ENEMY, 100)
 
-    wisp = Wisp(player, 250, 0.1)
     render.add_to_group('pbullets', wisp)
-
-    gun = Weapon(5, 'bullet', True)
-    beam = Weapon(50, 'beam', True)
-    bomb = Weapon(22, 'bomb', True)
-    lightning = Weapon(50, 'lightning', True)
-    weapon_list = [bomb]
 
     running = True
     while running:
-        difficulty = set_difficulty(player.xp)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -126,10 +155,11 @@ def main():
                 sys.exit()
 
             elif event.type == FIRE:
+                
                 if not game_over:
                     closest_enemy = player.get_closest_enemy(render.enemies)
-                    for weapon in weapon_list:
-                        weapon.fire(player, closest_enemy)
+                    for w in weapon.active_weapon_list:
+                        w.fire(player, closest_enemy)
 
             elif event.type == pygame.MOUSEBUTTONDOWN and not game_over:
                 mouse_pos = pygame.mouse.get_pos()
@@ -150,6 +180,8 @@ def main():
                 enemy = Enemy((spawn_x, spawn_y), random.choice((EnemyType.FOX, EnemyType.CRAB, EnemyType.MUSHROOM)),
                               spatial_grid, player)
                 render.add_to_group('enemies', enemy)
+                
+                difficulty = set_difficulty(player.xp, wisp)
 
         if not game_over:
             keys = pygame.key.get_pressed()
@@ -164,6 +196,21 @@ def main():
                 sys.exit()
             if keys[pygame.K_m]:
                 camera.shake(20, 5)
+
+            """
+            DEBUGGING PURPOSES
+            """
+
+            if keys[pygame.K_1]:
+                player.xp = 0
+            elif keys[pygame.K_2]:
+                player.xp = 26
+            elif keys[pygame.K_3]:
+                player.xp = 76
+            elif keys[pygame.K_4]:
+                player.xp = 151
+            elif keys[pygame.K_5]:
+                player.xp = 251
 
             for e in render.enemies:
                 e.update(player, camera)
@@ -184,15 +231,20 @@ def main():
 
         if game_over:
             render.show_message('You Lose', (255, 255, 255), screen_width // 2 - 100, screen_height // 2 - 50)
-            render.render(camera, player)
+            pygame.display.update()
+            # render.render(camera, player)
             keys = pygame.key.get_pressed()
             if keys[pygame.K_ESCAPE]:
-                running = False
-                pygame.quit()
-                sys.exit()
+                # running = False
+                # pygame.quit()
+                # sys.exit()
+                reset_game()
+                return
 
         clock.tick(60)
 
+os.chdir(os.path.dirname(__file__))
+data_path = os.path.join("data", "Button_Frame_.png")
 
 def options():
     image = pygame.image.load('data/button.png')
@@ -246,7 +298,7 @@ def options():
 def main_menu():
     pygame.display.set_caption('Menu')
 
-    image = pygame.image.load('data/button.png')
+    image = pygame.image.load(data_path)
 
     w = 400
     h = 300
@@ -255,7 +307,10 @@ def main_menu():
 
     while True:
         # screen.blit(bg, (0,0)) 
-        screen.fill((0, 0, 255))
+        map_image = pygame.image.load("data/128map.png")
+
+# Display the image at (0, 0)
+        screen.blit(map_image, (0, 0))
 
         MENU_MOUSE_POS = pygame.mouse.get_pos()
 
