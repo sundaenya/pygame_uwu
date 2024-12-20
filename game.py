@@ -1,5 +1,4 @@
 import sys
-from bomb import Bomb
 from tiles import *
 import random
 import sound
@@ -11,8 +10,6 @@ from camera import Camera
 from enums import GameSettings, Difficulty, Level
 from collision import *
 from spatial_grid import SpatialGrid
-from wave_attack import Wave_Attack
-from weapon import Weapon
 from wisp import Wisp
 from random import randrange
 from render import screen
@@ -20,19 +17,18 @@ from button import Button
 import math
 from sound import Sound
 
-# Initialize Pygame
+f = open("./data/score.txt", "r")
+highscore = f.read()
+
 pygame.init()
 
 os.chdir(os.path.dirname(__file__))
 data_path = os.path.join("data", "Kibty.png")
-
-# Define colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 
-# Set up the game window
 screen_width = GameSettings.SCREEN_WIDTH
 screen_height = GameSettings.SCREEN_HEIGHT
 world_width = GameSettings.WORLD_WIDTH
@@ -48,14 +44,11 @@ def get_font(size):
     return pygame.font.Font('data/Grand9K Pixel.ttf', size)
 
 def clear_all_enemies():
-    # Clear spatial grid
     spatial_grid.clear()
 
-    # Clear sprite group
     if hasattr(render, 'enemies'):
         render.enemies.empty()
 
-    # Clear global list (if exists)
     global enemies
     if 'enemies' in globals():
         enemies.clear()
@@ -72,7 +65,7 @@ player = Player(world_width // 2, world_width // 2)
 enemies = [player]
 weapon.active_weapon_list = weapon.weapon_list[:1]
 
-for _ in range(10):  # Add 10 trees
+for _ in range(10):
     while True:
         x = random.randint(100, world_width - 100)
         y = random.randint(100, world_height - 100)
@@ -90,7 +83,7 @@ for _ in range(10):  # Add 10 trees
             break
 
 
-def set_difficulty(xp, wisp):
+def set_difficulty(xp):
     if xp < Level.ONE:
         difficulty = Difficulty.EASY
         weapon.active_weapon_list =[]
@@ -111,7 +104,7 @@ def set_difficulty(xp, wisp):
 
 def reset_game():
     global player, game_over, spatial_grid
-    player = Player(100, 100)  # Reset the player
+    player = Player(100, 100)
     player.xp = 0
     game_over = False
     render.bullets.empty()
@@ -121,7 +114,6 @@ def reset_game():
     render.static_objects.empty()
     render.all_sprites.empty()
 
-    # Clear all enemies and other entities from the grid
     clear_all_enemies()
 
 sound = Sound()
@@ -133,8 +125,7 @@ def main():
     player = Player(screen_width // 2, screen_height // 2)
     render.add_to_group(None, player)
     game_over = False
-    difficulty = Difficulty.EASY
-    
+
     wisp = Wisp(player, 200, 0.1)
     render.add_to_group('pbullets', wisp)
 
@@ -145,6 +136,7 @@ def main():
     pygame.time.set_timer(SPAWN_ENEMY, 100)
 
     render.add_to_group('pbullets', wisp)
+    difficulty = set_difficulty(player.xp)
 
     running = True
     while running:
@@ -181,7 +173,6 @@ def main():
                               spatial_grid, player)
                 render.add_to_group('enemies', enemy)
                 
-                difficulty = set_difficulty(player.xp, wisp)
 
         if not game_over:
             keys = pygame.key.get_pressed()
@@ -196,10 +187,6 @@ def main():
                 sys.exit()
             if keys[pygame.K_m]:
                 camera.shake(20, 5)
-
-            """
-            DEBUGGING PURPOSES
-            """
 
             if keys[pygame.K_1]:
                 player.xp = 0
@@ -226,7 +213,7 @@ def main():
             check_bullet_collisions(render.bullets, render.enemies, player)
             check_pbullet_collisions(render.pbullets, render.enemies, player)
 
-        render.render(camera, player)
+        render.render(camera, player, highscore)
         camera.move(player.rect)
 
         if game_over:
@@ -235,9 +222,9 @@ def main():
             # render.render(camera, player)
             keys = pygame.key.get_pressed()
             if keys[pygame.K_ESCAPE]:
-                # running = False
-                # pygame.quit()
-                # sys.exit()
+                if player.xp > int(highscore):
+                    file = open("./data/score.txt", "w")
+                    file.write(str(player.xp))
                 reset_game()
                 return
 
@@ -306,10 +293,8 @@ def main_menu():
     n_image = pygame.transform.scale(image, (w, h))
 
     while True:
-        # screen.blit(bg, (0,0)) 
         map_image = pygame.image.load("data/128map.png")
 
-# Display the image at (0, 0)
         screen.blit(map_image, (0, 0))
 
         MENU_MOUSE_POS = pygame.mouse.get_pos()
@@ -347,6 +332,5 @@ def main_menu():
         pygame.display.update()
 
 
-# Run the game
 if __name__ == "__main__":
     main_menu()
