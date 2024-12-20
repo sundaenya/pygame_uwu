@@ -125,7 +125,7 @@ class Enemy(pygame.sprite.Sprite):
                 self.xp = 5
                 self.current_frame = 1
                 self.frame_timer = pygame.time.get_ticks()
-                self.hitbox_width = CRAB_SIZE * 0.65
+                self.hitbox_width = CRAB_SIZE * 0.6
                 self.hitbox_height = CRAB_SIZE * 0.5
                 self.frame_rate = 200
             case EnemyType.TREE:
