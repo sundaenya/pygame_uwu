@@ -42,7 +42,20 @@ spatial_grid = SpatialGrid(cell_size, world_width, world_height)
 
 
 def get_font(size):
-    return pygame.font.Font("C:/Windows/Fonts/arial.ttf", size)
+    return pygame.font.Font('data/Grand9K Pixel.ttf', size)
+
+def clear_all_enemies():
+    # Clear spatial grid
+    spatial_grid.clear()
+
+    # Clear sprite group
+    if hasattr(render, 'enemies'):
+        render.enemies.empty()
+
+    # Clear global list (if exists)
+    global enemies
+    if 'enemies' in globals():
+        enemies.clear()
 
 
 class StaticObject(pygame.sprite.Sprite):
@@ -88,6 +101,20 @@ def set_difficulty(xp):
 
     return difficulty
 
+def reset_game():
+    global player, game_over, spatial_grid
+    player = Player(100, 100)  # Reset the player
+    player.xp = 0
+    game_over = False
+    render.bullets.empty()
+    render.pbullets.empty()
+    render.enemies.empty()
+    render.other.empty()
+    render.static_objects.empty()
+    render.all_sprites.empty()
+
+    # Clear all enemies and other entities from the grid
+    clear_all_enemies()
 
 def main():
     clock = pygame.time.Clock()
@@ -109,8 +136,7 @@ def main():
 
     gun = Weapon(5, 'bullet', True)
     beam = Weapon(50, 'beam', True)
-
-    running = True
+    running = True 
     while running:
         difficulty = set_difficulty(player.xp)
 
@@ -177,20 +203,25 @@ def main():
 
         if game_over:
             render.show_message('You Lose', (255, 255, 255), screen_width // 2 - 100, screen_height // 2 - 50)
-            render.render(camera, player)
+            pygame.display.update()
+            # render.render(camera, player)
             keys = pygame.key.get_pressed()
             if keys[pygame.K_ESCAPE]:
-                running = False
-                pygame.quit()
-                sys.exit()
+                # running = False
+                # pygame.quit()
+                # sys.exit()
+                reset_game()
+                return
 
         clock.tick(60)
 
+os.chdir(os.path.dirname(__file__))
+data_path = os.path.join("data", "Button_Frame_.png")
 
 def main_menu():
     pygame.display.set_caption('Menu')
 
-    image = pygame.image.load('data/button.png')
+    image = pygame.image.load(data_path)
 
     w = 400
     h = 300
@@ -199,7 +230,10 @@ def main_menu():
 
     while True:
         # screen.blit(bg, (0,0)) 
-        screen.fill((0, 0, 255))
+        map_image = pygame.image.load("data/128map.png")
+
+# Display the image at (0, 0)
+        screen.blit(map_image, (0, 0))
 
         MENU_MOUSE_POS = pygame.mouse.get_pos()
 

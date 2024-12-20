@@ -41,3 +41,7 @@ class SpatialGrid:
             for y in range(y_start, y_end + 1):
                 nearby.update(self.cells.get((x, y), []))
         return nearby
+    
+    def clear(self):
+        self.cells.clear()
+
