@@ -4,9 +4,9 @@ import os
 
 
 pygame.init()
-main_font = pygame.font.SysFont('cambria', 50)
+main_font = pygame.font.Font('data/Grand9K Pixel.ttf', 50)
 os.chdir(os.path.dirname(__file__))
-data_path = os.path.join("data", "button.png")
+data_path = os.path.join("data", "Button_Frame_")
 class Button():
 	def __init__(self, image, pos, text_input, font, base_color, hovering_color):
 		self.image = image

@@ -46,9 +46,12 @@ def show_message(message, color, x, y):
 def draw_health_bar(x, y, max_health, current_health, bar_width, bar_height):
     current_health = max(0, current_health)
     health_percentage = current_health / max_health
-    pygame.draw.rect(screen, WHITE, (x, y, bar_width, bar_height), 2)
+    # pygame.draw.rect(screen, WHITE, (x, y, bar_width, bar_height), 2)
     pygame.draw.rect(screen, RED, (x, y, bar_width, bar_height))
     pygame.draw.rect(screen, GREEN, (x, y, bar_width * health_percentage, bar_height))
+    # hp_bar = pygame.image.load("data/HP_Bar.png").convert_alpha()
+    # hp_bar = pygame.transform.scale(hp_bar, (bar_width, bar_height + 50))
+    # screen.blit(hp_bar,(x,y))
 
 
 def add_to_group(group : Literal['bullets', 'pbullets', 'enemies', 'static_objects'], sprite):
@@ -92,7 +95,7 @@ def render(camera, player):
     # for obj in static_objects:
     #     offset_pos = obj.rect.topleft - camera.get_offset()
     #     screen.blit(obj.image, offset_pos)
-
+    
     draw_health_bar(50, 50, GameSettings.PLAYER_HEALTH, player.health, 200, 20)
     show_message(str(player.xp) + ' XP', WHITE, 1700, 50)
 

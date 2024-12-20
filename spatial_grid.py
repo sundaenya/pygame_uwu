@@ -76,6 +76,9 @@ class SpatialGrid:
                 nearby.update(self.cells.get((x, y), []))
         return nearby
 
+    def clear(self):
+        self.cells.clear()
+
 
 # Usage Example
 if __name__ == "__main__":
@@ -86,3 +89,6 @@ if __name__ == "__main__":
 
     spatial_grid = SpatialGrid(cell_size, world_width, world_height)
     print(f"Spatial grid initialized with cell size: {cell_size}")
+
+
+
