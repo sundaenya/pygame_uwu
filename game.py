@@ -43,6 +43,7 @@ spatial_grid = SpatialGrid(cell_size, world_width, world_height)
 def get_font(size):
     return pygame.font.Font('data/Grand9K Pixel.ttf', size)
 
+
 def clear_all_enemies():
     spatial_grid.clear()
 
@@ -86,7 +87,7 @@ for _ in range(10):
 def set_difficulty(xp):
     if xp < Level.ONE:
         difficulty = Difficulty.EASY
-        weapon.active_weapon_list =[]
+        weapon.active_weapon_list = []
     elif Level.ONE < xp < Level.TWO:
         difficulty = Difficulty.MEDIUM
         weapon.active_weapon_list = weapon.weapon_list[:1]
@@ -102,6 +103,7 @@ def set_difficulty(xp):
 
     return difficulty
 
+
 def reset_game():
     global player, game_over, spatial_grid
     player = Player(100, 100)
@@ -115,6 +117,8 @@ def reset_game():
     render.all_sprites.empty()
 
     clear_all_enemies()
+    main_menu()
+
 
 sound = Sound()
 
@@ -125,6 +129,7 @@ def main():
     player = Player(screen_width // 2, screen_height // 2)
     render.add_to_group(None, player)
     game_over = False
+    difficulty = Difficulty.EASY
 
     wisp = Wisp(player, 200, 0.1)
     render.add_to_group('pbullets', wisp)
@@ -136,18 +141,17 @@ def main():
     pygame.time.set_timer(SPAWN_ENEMY, 100)
 
     render.add_to_group('pbullets', wisp)
-    difficulty = set_difficulty(player.xp)
 
     running = True
     while running:
-
+        difficulty = set_difficulty(player.xp)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
             elif event.type == FIRE:
-                
+
                 if not game_over:
                     closest_enemy = player.get_closest_enemy(render.enemies)
                     for w in weapon.active_weapon_list:
@@ -172,16 +176,14 @@ def main():
                 enemy = Enemy((spawn_x, spawn_y), random.choice((EnemyType.FOX, EnemyType.CRAB, EnemyType.MUSHROOM)),
                               spatial_grid, player)
                 render.add_to_group('enemies', enemy)
-                
 
         if not game_over:
             keys = pygame.key.get_pressed()
             player.update(keys)
 
             if keys[pygame.K_ESCAPE]:
-                running = False
-                pygame.quit()
-                sys.exit()
+                reset_game()
+                main_menu()
             if keys[pygame.K_SPACE]:
                 running = False
                 sys.exit()
@@ -230,24 +232,28 @@ def main():
 
         clock.tick(60)
 
+
 os.chdir(os.path.dirname(__file__))
 data_path = os.path.join("data", "Button_Frame_.png")
 
+
 def options():
-    image = pygame.image.load('data/button.png')
+    image = pygame.image.load(data_path)
 
     w = 400
     h = 300
 
     n_image = pygame.transform.scale(image, (w, h))
     while True:
-        screen.fill('blue')
+        map_image = pygame.image.load("data/128map.png")
+
+        screen.blit(map_image, (0, 0))
 
         MENU_MOUSE_POS = pygame.mouse.get_pos()
 
-        OPTIONS_TEXT = get_font(50).render('OPTIONS', True, 'red')
-        OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(screen_width // 2, 100))
-        screen.blit(OPTIONS_TEXT, OPTIONS_RECT)
+        # OPTIONS_TEXT = get_font(50).render('OPTIONS', True, 'white')
+        # OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(screen_width // 2, 100))
+        # screen.blit(OPTIONS_TEXT, OPTIONS_RECT)
         keys = pygame.key.get_pressed()
 
         SCREEN_BUTTON = Button(image=n_image,
@@ -257,8 +263,6 @@ def options():
                               text_input="+VOL", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
         VOLDOWN_BUTTON = Button(image=n_image, pos=(screen_width // 2, 900),
                                 text_input="-VOL", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
-        MAIN_MENU_BUTTON = Button(image=n_image, pos=(screen_width // 2, 900),
-                                  text_input="PLAY", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
 
         for button in [SCREEN_BUTTON, VOLUP_BUTTON, VOLDOWN_BUTTON]:
             button.changeColor(MENU_MOUSE_POS)
@@ -274,7 +278,7 @@ def options():
                 if VOLUP_BUTTON.checkForInput(MENU_MOUSE_POS):
                     sound.volume += 0.05
                     sound.bg_music(sound.volume)
-                if MAIN_MENU_BUTTON.checkForInput(MENU_MOUSE_POS):
+                if VOLDOWN_BUTTON.checkForInput(MENU_MOUSE_POS):
                     sound.volume -= 0.05
                     sound.bg_music(sound.volume)
                 # if VOLDOWN_BUTTON.checkForInput(MENU_MOUSE_POS):
@@ -293,24 +297,25 @@ def main_menu():
     n_image = pygame.transform.scale(image, (w, h))
 
     while True:
-        map_image = pygame.image.load("data/128map.png")
+        map_image = pygame.image.load("data/Title.png")
+        map_image = pygame.transform.scale(map_image, (screen_width, screen_height))
 
         screen.blit(map_image, (0, 0))
 
         MENU_MOUSE_POS = pygame.mouse.get_pos()
 
-        MENU_TEXT = get_font(50).render('MAIN MENU', True, '#b68f40')
-        MENU_RECT = MENU_TEXT.get_rect(center=(screen_width // 2, 100))
+        # MENU_TEXT = get_font(50).render('MAIN MENU', True, 'white')
+        # MENU_RECT = MENU_TEXT.get_rect(center=(screen_width // 2, 100))
 
         PLAY_BUTTON = Button(image=n_image,
-                             pos=(screen_width // 2, 300), text_input="PLAY", font=get_font(75), base_color="#d7fcd4",
+                             pos=(screen_width // 2, 625), text_input="PLAY", font=get_font(75), base_color="#d7fcd4",
                              hovering_color="White")
-        OPTIONS_BUTTON = Button(image=n_image, pos=(screen_width // 2, 600),
+        OPTIONS_BUTTON = Button(image=n_image, pos=(screen_width // 2, 800),
                                 text_input="OPTIONS", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
-        QUIT_BUTTON = Button(image=n_image, pos=(screen_width // 2, 900),
+        QUIT_BUTTON = Button(image=n_image, pos=(screen_width // 2, 975),
                              text_input="QUIT", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
 
-        screen.blit(MENU_TEXT, MENU_RECT)
+        # screen.blit(MENU_TEXT, MENU_RECT)
 
         for button in [PLAY_BUTTON, OPTIONS_BUTTON, QUIT_BUTTON]:
             button.changeColor(MENU_MOUSE_POS)
