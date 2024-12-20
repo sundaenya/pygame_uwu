@@ -1,22 +1,27 @@
 import pygame
 
 def check_collision(player, enemy):
-    if pygame.sprite.collide_rect(player, enemy):
-
+    if player.rect.colliderect(enemy.hitbox):
         return True
     return False
 
 def check_bullet_collisions(bullets, enemies, player):
-    collisions = pygame.sprite.groupcollide(bullets, enemies, True, False)
+    collisions = []
+    
+    for bullet in bullets:
+        for enemy in enemies:
+            if bullet.rect.colliderect(enemy.hitbox):
+                collisions.append((bullet, enemy))
+                enemy.damage(bullet.damage, player)
 
-    for bullet, hit_enemies in collisions.items():
-        for enemy in hit_enemies:
-            enemy.damage(bullet.damage, player)
+    for bullet, _ in collisions:
+        bullet.kill()
 
 def check_pbullet_collisions(pbullets, enemies, player):
-    list = pygame.sprite.groupcollide(pbullets, enemies, False, False)
+    collisions = []
 
-    for bullet, hit_enemies in list.items():
-        for enemy in hit_enemies:
-            enemy.damage(bullet.damage, player)
-
+    for bullet in pbullets:
+        for enemy in enemies:
+            if bullet.rect.colliderect(enemy.hitbox):
+                collisions.append((bullet, enemy))
+                enemy.damage(bullet.damage, player)

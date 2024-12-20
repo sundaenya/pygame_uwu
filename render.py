@@ -32,7 +32,8 @@ screen = pygame.display.set_mode((screen_width, screen_height), pygame.NOFRAME)
 pygame.display.set_caption('Amelia Earheart Simulator')
 crab = pygame.image.load('data/crab.png')
 spritesheet = Spritesheet('grassTileset.png')
-canvas = pygame.image.load('./data/128map.png')
+# canvas = pygame.image.load('./data/128map.png')
+canvas = pygame.image.load('./data/Double_Grass_test.png')
 world_surface = pygame.Surface((world_width, world_height))
 world_surface.fill("green")
 
@@ -81,10 +82,10 @@ def get_number_of_trees():
 def render(camera, player):
     screen.blit(canvas, (-camera.get_offset().x, -camera.get_offset().y))
 
-    # list = all_sprites.sprites()
-    # list.sort(key=lambda sprite: sprite.rect.bottom)
+    list = all_sprites.sprites()
+    list.sort(key=lambda sprite: sprite.rect.bottom)
 
-    for sprite in all_sprites:
+    for sprite in list:
         offset_pos = pygame.Vector2(sprite.rect.topleft) - camera.get_offset()
         screen.blit(sprite.image, offset_pos)
 
@@ -98,7 +99,7 @@ def render(camera, player):
     for enemy in enemies:
         if enemy.max_health != enemy.health:
             enemy_pos = enemy.get_pos() - camera.get_offset()
-            draw_health_bar(enemy_pos[0], enemy_pos[1] - 20, enemy.max_health, enemy.health, 50, 5)
+            # draw_health_bar(enemy_pos[0], enemy_pos[1] - 20, enemy.max_health, enemy.health, 50, 5)
 
     # Update the display
     pygame.display.flip()

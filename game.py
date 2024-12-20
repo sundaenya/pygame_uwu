@@ -1,4 +1,5 @@
 import sys
+from bomb import Bomb
 from tiles import *
 import random
 import sound
@@ -16,6 +17,7 @@ from random import randrange
 from render import screen
 from button import Button
 import math
+from sound import Sound
 
 # Initialize Pygame
 pygame.init()
@@ -52,7 +54,7 @@ class StaticObject(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=pos)
 
 
-player = Player(screen_width // 2, screen_height // 2)
+player = Player(world_width // 2, world_width // 2)
 
 enemies = [player]
 
@@ -68,7 +70,7 @@ for _ in range(10):  # Add 10 trees
                 collision = True
                 break
         if not collision:
-            newTree = Enemy((x, y), EnemyType.TREE, spatial_grid)
+            newTree = Enemy((x, y), EnemyType.TREE, spatial_grid, player)
             enemies.append(newTree)
             render.add_to_group('enemies', newTree)
             break
@@ -89,13 +91,14 @@ def set_difficulty(xp):
     return difficulty
 
 
+sound = Sound()
+
+
 def main():
     clock = pygame.time.Clock()
-    sound.bg_music(0.05)
     min_range = 500
     player = Player(screen_width // 2, screen_height // 2)
     render.add_to_group(None, player)
-
     game_over = False
 
     FIRE = pygame.USEREVENT + 1
@@ -104,11 +107,14 @@ def main():
     SPAWN_ENEMY = pygame.USEREVENT + 2
     pygame.time.set_timer(SPAWN_ENEMY, 100)
 
-    wisp = Wisp(player, 250, 0.5)
+    wisp = Wisp(player, 250, 0.1)
     render.add_to_group('pbullets', wisp)
 
     gun = Weapon(5, 'bullet', True)
     beam = Weapon(50, 'beam', True)
+    bomb = Weapon(22, 'bomb', True)
+    lightning = Weapon(50, 'lightning', True)
+    weapon_list = [bomb]
 
     running = True
     while running:
@@ -122,14 +128,14 @@ def main():
             elif event.type == FIRE:
                 if not game_over:
                     closest_enemy = player.get_closest_enemy(render.enemies)
-                    gun.fire(player, closest_enemy)
-                    beam.fire(player, closest_enemy)
+                    for weapon in weapon_list:
+                        weapon.fire(player, closest_enemy)
 
             elif event.type == pygame.MOUSEBUTTONDOWN and not game_over:
                 mouse_pos = pygame.mouse.get_pos()
                 world_pos = (mouse_pos[0] + camera.get_offset().x, mouse_pos[1] + camera.get_offset().y)
-                enemy_type = random.choice([EnemyType.FOX, EnemyType.CRAB])
-                enemy = Enemy(world_pos, enemy_type, spatial_grid)
+                enemy_type = random.choice([EnemyType.FOX, EnemyType.CRAB, EnemyType.MUSHROOM])
+                enemy = Enemy(world_pos, enemy_type, spatial_grid, player)
                 render.add_to_group('enemies', enemy)
 
             elif event.type == SPAWN_ENEMY and not game_over and render.get_enemy_number() < 25 * difficulty:
@@ -140,8 +146,9 @@ def main():
                         break
 
                 if render.get_number_of_trees() < 10 * difficulty:
-                    render.add_to_group('enemies', Enemy((spawn_x, spawn_y), EnemyType.TREE, spatial_grid))
-                enemy = Enemy((spawn_x, spawn_y), random.choice((EnemyType.FOX, EnemyType.CRAB, EnemyType.MUSHROOM)), spatial_grid)
+                    render.add_to_group('enemies', Enemy((spawn_x, spawn_y), EnemyType.TREE, spatial_grid, player))
+                enemy = Enemy((spawn_x, spawn_y), random.choice((EnemyType.FOX, EnemyType.CRAB, EnemyType.MUSHROOM)),
+                              spatial_grid, player)
                 render.add_to_group('enemies', enemy)
 
         if not game_over:
@@ -187,6 +194,55 @@ def main():
         clock.tick(60)
 
 
+def options():
+    image = pygame.image.load('data/button.png')
+
+    w = 400
+    h = 300
+
+    n_image = pygame.transform.scale(image, (w, h))
+    while True:
+        screen.fill('blue')
+
+        MENU_MOUSE_POS = pygame.mouse.get_pos()
+
+        OPTIONS_TEXT = get_font(50).render('OPTIONS', True, 'red')
+        OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(screen_width // 2, 100))
+        screen.blit(OPTIONS_TEXT, OPTIONS_RECT)
+        keys = pygame.key.get_pressed()
+
+        SCREEN_BUTTON = Button(image=n_image,
+                               pos=(screen_width // 2, 300), text_input="PLAY", font=get_font(75), base_color="#d7fcd4",
+                               hovering_color="White")
+        VOLUP_BUTTON = Button(image=n_image, pos=(screen_width // 2, 600),
+                              text_input="+VOL", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+        VOLDOWN_BUTTON = Button(image=n_image, pos=(screen_width // 2, 900),
+                                text_input="-VOL", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+        MAIN_MENU_BUTTON = Button(image=n_image, pos=(screen_width // 2, 900),
+                                  text_input="PLAY", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
+
+        for button in [SCREEN_BUTTON, VOLUP_BUTTON, VOLDOWN_BUTTON]:
+            button.changeColor(MENU_MOUSE_POS)
+            button.update(screen)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if SCREEN_BUTTON.checkForInput(MENU_MOUSE_POS):
+                    main()
+                if VOLUP_BUTTON.checkForInput(MENU_MOUSE_POS):
+                    sound.volume += 0.05
+                    sound.bg_music(sound.volume)
+                if MAIN_MENU_BUTTON.checkForInput(MENU_MOUSE_POS):
+                    sound.volume -= 0.05
+                    sound.bg_music(sound.volume)
+                # if VOLDOWN_BUTTON.checkForInput(MENU_MOUSE_POS):
+                #     main()
+        pygame.display.update()
+
+
 def main_menu():
     pygame.display.set_caption('Menu')
 
@@ -228,7 +284,7 @@ def main_menu():
                 if PLAY_BUTTON.checkForInput(MENU_MOUSE_POS):
                     main()
                 if OPTIONS_BUTTON.checkForInput(MENU_MOUSE_POS):
-                    main()
+                    options()
                 if QUIT_BUTTON.checkForInput(MENU_MOUSE_POS):
                     pygame.quit()
                     sys.exit()

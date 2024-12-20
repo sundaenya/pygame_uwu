@@ -5,12 +5,12 @@ class Difficulty:
     EXTREMELY_HARD = 1.4
     IMPOSSIBLE = 1.5
 
+
 class Level:
     ONE = 25
     TWO = 75
     THREE = 150
     FOUR = 250
-
 
 
 class GameSettings:
