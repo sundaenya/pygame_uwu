@@ -50,14 +50,11 @@ class Player(pygame.sprite.Sprite):
         self.xp += amount
 
     def get_closest_enemy(self, enemies):
-        pos = pygame.math.Vector2(self.rect.x, self.rect.y)
-        try:
-            return min(
-                [e for e in enemies if e.speed > 0],
-                key=lambda e: pos.distance_to(pygame.math.Vector2(e.rect.centerx, e.rect.centery))
-            )
-        except:
+        pos = pygame.math.Vector2(self.rect.center)
+        moving_enemies = [e for e in enemies if e.speed > 0]
+        if not moving_enemies:
             return None
+        return min(moving_enemies, key=lambda e: pos.distance_to(e.rect.center))
         
     def animate(self):
         return
