@@ -57,7 +57,6 @@ class StaticObject(pygame.sprite.Sprite):
 player = Player(world_width // 2, world_width // 2)
 enemies = [player]
 weapon.active_weapon_list = weapon.weapon_list[:1]
-wisp = Wisp(player, 200, 0.1)
 
 for _ in range(10):  # Add 10 trees
     while True:
@@ -80,12 +79,10 @@ for _ in range(10):  # Add 10 trees
 def set_difficulty(xp, wisp):
     if xp < Level.ONE:
         difficulty = Difficulty.EASY
-        weapon.active_weapon_list = weapon.weapon_list[:1]
-        wisp.kill()
+        weapon.active_weapon_list =[]
     elif Level.ONE < xp < Level.TWO:
         difficulty = Difficulty.MEDIUM
         weapon.active_weapon_list = weapon.weapon_list[:1]
-        render.add_to_group('pbullets', wisp)
     elif Level.TWO < xp < Level.THREE:
         difficulty = Difficulty.HARD
         weapon.active_weapon_list = weapon.weapon_list[:2]
@@ -106,6 +103,9 @@ def main():
     render.add_to_group(None, player)
     game_over = False
     difficulty = Difficulty.EASY
+    
+    wisp = Wisp(player, 200, 0.1)
+    render.add_to_group('pbullets', wisp)
 
     FIRE = pygame.USEREVENT + 1
     pygame.time.set_timer(FIRE, 100)
