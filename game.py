@@ -129,6 +129,7 @@ def main():
     player = Player(screen_width // 2, screen_height // 2)
     render.add_to_group(None, player)
     game_over = False
+    difficulty = Difficulty.EASY
 
     wisp = Wisp(player, 200, 0.1)
     render.add_to_group('pbullets', wisp)
@@ -140,10 +141,10 @@ def main():
     pygame.time.set_timer(SPAWN_ENEMY, 100)
 
     render.add_to_group('pbullets', wisp)
-    difficulty = set_difficulty(player.xp)
 
     running = True
     while running:
+        difficulty = set_difficulty(player.xp)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
