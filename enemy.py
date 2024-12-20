@@ -63,7 +63,7 @@ class Enemy(pygame.sprite.Sprite):
                 self.frames['left']['red'] = [
                     self._create_red_frame(frame) for frame in self.frames['left']['normal']
                 ]
-                self.speed = 5
+                self.speed = 5.5
                 self.health = 3
                 self.max_health = 3
                 self.damage_amount = 2
@@ -90,7 +90,7 @@ class Enemy(pygame.sprite.Sprite):
                 self.frames['left']['red'] = [
                     self._create_red_frame(frame) for frame in self.frames['left']['normal']
                 ]
-                self.speed = 4
+                self.speed = 4.5
                 self.health = 5
                 self.max_health = 5
                 self.damage_amount = 2
@@ -123,7 +123,7 @@ class Enemy(pygame.sprite.Sprite):
                 self.frames['left']['red'] = [
                     self._create_red_frame(frame) for frame in self.frames['left']['normal']
                 ]
-                self.speed = 2
+                self.speed = 3
                 self.health = 40
                 self.max_health = 40
                 self.damage_amount = 20

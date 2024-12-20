@@ -39,5 +39,5 @@ class Bomb(pygame.sprite.Sprite):
             self.explode()
 
     def explode(self):
-        render.add_to_group('pbullets', Explosion(self, 200, self.bomb_damage, 20))
+        render.add_to_group('pbullets', Explosion(self, 200, self.bomb_damage, 10))
         self.kill()

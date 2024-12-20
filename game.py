@@ -108,7 +108,7 @@ def main():
 
     gun = Weapon(5, 'bullet', True)
     beam = Weapon(50, 'beam', True)
-    bomb = Weapon(10, 'bomb', True)
+    bomb = Weapon(22, 'bomb', True)
     lightning = Weapon(50, 'lightning', True)
     weapon_list = [bomb]
 

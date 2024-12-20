@@ -26,7 +26,7 @@ class Weapon(pygame.sprite.Sprite):
                     render.add_to_group('other', Beam(player, target, (255, 0, 0)))
                     render.add_to_group('pbullets', Bullet(player, target, (0, 0, 0, 0), 50, 5))
                 case 'bomb':
-                    render.add_to_group('other', Bomb(player, target, (0, 0, 255), 7, 1, 40))
+                    render.add_to_group('other', Bomb(player, target, (0, 0, 255), 28, 1, 15))
                 case 'lightning':
                     render.add_to_group('other', Lightning(target, 20))
                 case _:

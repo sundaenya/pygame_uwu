@@ -12,7 +12,7 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(pygame.image.load('data/player/Cat_Frame_Thicker_1.png'), (self.size, self.size))
         self.rect = self.image.get_rect()
         self.rect.center = (x, y)
-        self.speed = 5
+        self.speed = 7
         self.xp = 0
         self.health = 1000
         self.direction = 'left'
