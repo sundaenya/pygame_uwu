@@ -54,7 +54,6 @@ class StaticObject(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(topleft=pos)
 
 player = Player(world_width // 2, world_width // 2)
-
 enemies = [player]
 
 for _ in range(10):  # Add 10 trees
@@ -76,9 +75,9 @@ for _ in range(10):  # Add 10 trees
 
 
 def set_difficulty(xp):
-    difficulty = Difficulty.EASY
-
-    if Level.ONE < xp < Level.TWO:
+    if xp < Level.ONE:
+        difficulty = Difficulty.EASY
+    elif Level.ONE < xp < Level.TWO:
         difficulty = Difficulty.MEDIUM
     elif Level.TWO < xp < Level.THREE:
         difficulty = Difficulty.HARD
@@ -96,6 +95,7 @@ def main():
     player = Player(screen_width // 2, screen_height // 2)
     render.add_to_group(None, player)
     game_over = False
+    difficulty = Difficulty.EASY
 
     FIRE = pygame.USEREVENT + 1
     pygame.time.set_timer(FIRE, 100)
@@ -114,7 +114,6 @@ def main():
 
     running = True
     while running:
-        difficulty = set_difficulty(player.xp)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -122,6 +121,7 @@ def main():
                 sys.exit()
 
             elif event.type == FIRE:
+                
                 if not game_over:
                     closest_enemy = player.get_closest_enemy(render.enemies)
                     for weapon in weapon_list:
@@ -145,6 +145,8 @@ def main():
                     render.add_to_group('enemies', Enemy((spawn_x, spawn_y), EnemyType.TREE, spatial_grid, player))
                 enemy = Enemy((spawn_x, spawn_y), random.choice((EnemyType.FOX, EnemyType.CRAB, EnemyType.MUSHROOM)), spatial_grid, player)
                 render.add_to_group('enemies', enemy)
+                
+                difficulty = set_difficulty(player.xp)
 
         if not game_over:
             keys = pygame.key.get_pressed()
@@ -159,6 +161,21 @@ def main():
                 sys.exit()
             if keys[pygame.K_m]:
                 camera.shake(20, 5)
+
+            """
+            DEBUGGING PURPOSES
+            """
+
+            if keys[pygame.K_1]:
+                player.xp = 0
+            elif keys[pygame.K_2]:
+                player.xp = 26
+            elif keys[pygame.K_3]:
+                player.xp = 76
+            elif keys[pygame.K_4]:
+                player.xp = 151
+            elif keys[pygame.K_5]:
+                player.xp = 251
 
             for e in render.enemies:
                 e.update(player, camera)
