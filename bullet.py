@@ -1,7 +1,6 @@
 import pygame
 import math
 from enums import GameSettings
-import sound
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, player, target, color, speed, damage):

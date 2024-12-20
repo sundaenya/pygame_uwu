@@ -1,5 +1,4 @@
 import sys
-from bomb import Bomb
 from tiles import *
 import random
 import sound
@@ -11,8 +10,6 @@ from camera import Camera
 from enums import GameSettings, Difficulty, Level
 from collision import *
 from spatial_grid import SpatialGrid
-from wave_attack import Wave_Attack
-from weapon import Weapon
 from wisp import Wisp
 from random import randrange
 from render import screen
@@ -20,19 +17,18 @@ from button import Button
 import math
 from sound import Sound
 
-# Initialize Pygame
+f = open("./data/score.txt", "r")
+highscore = f.read()
+
 pygame.init()
 
 os.chdir(os.path.dirname(__file__))
 data_path = os.path.join("data", "Kibty.png")
-
-# Define colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 
-# Set up the game window
 screen_width = GameSettings.SCREEN_WIDTH
 screen_height = GameSettings.SCREEN_HEIGHT
 world_width = GameSettings.WORLD_WIDTH
@@ -49,14 +45,11 @@ def get_font(size):
 
 
 def clear_all_enemies():
-    # Clear spatial grid
     spatial_grid.clear()
 
-    # Clear sprite group
     if hasattr(render, 'enemies'):
         render.enemies.empty()
 
-    # Clear global list (if exists)
     global enemies
     if 'enemies' in globals():
         enemies.clear()
@@ -73,7 +66,7 @@ player = Player(world_width // 2, world_width // 2)
 enemies = [player]
 weapon.active_weapon_list = weapon.weapon_list[:1]
 
-for _ in range(10):  # Add 10 trees
+for _ in range(10):
     while True:
         x = random.randint(100, world_width - 100)
         y = random.randint(100, world_height - 100)
@@ -91,10 +84,10 @@ for _ in range(10):  # Add 10 trees
             break
 
 
-def set_difficulty(xp, wisp):
+def set_difficulty(xp):
     if xp < Level.ONE:
         difficulty = Difficulty.EASY
-        weapon.active_weapon_list =[]
+        weapon.active_weapon_list = []
     elif Level.ONE < xp < Level.TWO:
         difficulty = Difficulty.MEDIUM
         weapon.active_weapon_list = weapon.weapon_list[:1]
@@ -110,9 +103,10 @@ def set_difficulty(xp, wisp):
 
     return difficulty
 
+
 def reset_game():
     global player, game_over, spatial_grid
-    player = Player(100, 100)  # Reset the player
+    player = Player(100, 100)
     player.xp = 0
     game_over = False
     render.bullets.empty()
@@ -122,10 +116,12 @@ def reset_game():
     render.static_objects.empty()
     render.all_sprites.empty()
 
-    # Clear all enemies and other entities from the grid
     clear_all_enemies()
+    main_menu()
+
 
 sound = Sound()
+
 
 def main():
     clock = pygame.time.Clock()
@@ -133,8 +129,7 @@ def main():
     player = Player(screen_width // 2, screen_height // 2)
     render.add_to_group(None, player)
     game_over = False
-    difficulty = Difficulty.EASY
-    
+
     wisp = Wisp(player, 200, 0.1)
     render.add_to_group('pbullets', wisp)
 
@@ -145,6 +140,7 @@ def main():
     pygame.time.set_timer(SPAWN_ENEMY, 100)
 
     render.add_to_group('pbullets', wisp)
+    difficulty = set_difficulty(player.xp)
 
     running = True
     while running:
@@ -154,7 +150,7 @@ def main():
                 sys.exit()
 
             elif event.type == FIRE:
-                
+
                 if not game_over:
                     closest_enemy = player.get_closest_enemy(render.enemies)
                     for w in weapon.active_weapon_list:
@@ -179,8 +175,6 @@ def main():
                 enemy = Enemy((spawn_x, spawn_y), random.choice((EnemyType.FOX, EnemyType.CRAB, EnemyType.MUSHROOM)),
                               spatial_grid, player)
                 render.add_to_group('enemies', enemy)
-                
-                difficulty = set_difficulty(player.xp, wisp)
 
         if not game_over:
             keys = pygame.key.get_pressed()
@@ -194,6 +188,7 @@ def main():
                 sys.exit()
             if keys[pygame.K_m]:
                 camera.shake(20, 5)
+
             if keys[pygame.K_1]:
                 player.xp = 0
             elif keys[pygame.K_2]:
@@ -219,7 +214,7 @@ def main():
             check_bullet_collisions(render.bullets, render.enemies, player)
             check_pbullet_collisions(render.pbullets, render.enemies, player)
 
-        render.render(camera, player)
+        render.render(camera, player, highscore)
         camera.move(player.rect)
 
         if game_over:
@@ -228,16 +223,18 @@ def main():
             # render.render(camera, player)
             keys = pygame.key.get_pressed()
             if keys[pygame.K_ESCAPE]:
-                # running = False
-                # pygame.quit()
-                # sys.exit()
+                if player.xp > int(highscore):
+                    file = open("./data/score.txt", "w")
+                    file.write(str(player.xp))
                 reset_game()
                 return
 
         clock.tick(60)
 
+
 os.chdir(os.path.dirname(__file__))
 data_path = os.path.join("data", "Button_Frame_.png")
+
 
 def options():
     image = pygame.image.load(data_path)
@@ -249,14 +246,13 @@ def options():
     while True:
         map_image = pygame.image.load("data/128map.png")
 
-# Display the image at (0, 0)
         screen.blit(map_image, (0, 0))
-       
+
         MENU_MOUSE_POS = pygame.mouse.get_pos()
 
-        OPTIONS_TEXT = get_font(50).render('OPTIONS', True, 'white')
-        OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(screen_width // 2, 100))
-        screen.blit(OPTIONS_TEXT, OPTIONS_RECT)
+        # OPTIONS_TEXT = get_font(50).render('OPTIONS', True, 'white')
+        # OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(screen_width // 2, 100))
+        # screen.blit(OPTIONS_TEXT, OPTIONS_RECT)
         keys = pygame.key.get_pressed()
 
         SCREEN_BUTTON = Button(image=n_image,
@@ -266,8 +262,6 @@ def options():
                               text_input="+VOL", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
         VOLDOWN_BUTTON = Button(image=n_image, pos=(screen_width // 2, 900),
                                 text_input="-VOL", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
-        MAIN_MENU_BUTTON = Button(image=n_image, pos=(screen_width // 2, 900),
-                                  text_input="PLAY", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
 
         for button in [SCREEN_BUTTON, VOLUP_BUTTON, VOLDOWN_BUTTON]:
             button.changeColor(MENU_MOUSE_POS)
@@ -283,7 +277,7 @@ def options():
                 if VOLUP_BUTTON.checkForInput(MENU_MOUSE_POS):
                     sound.volume += 0.05
                     sound.bg_music(sound.volume)
-                if MAIN_MENU_BUTTON.checkForInput(MENU_MOUSE_POS):
+                if VOLDOWN_BUTTON.checkForInput(MENU_MOUSE_POS):
                     sound.volume -= 0.05
                     sound.bg_music(sound.volume)
                 # if VOLDOWN_BUTTON.checkForInput(MENU_MOUSE_POS):
@@ -302,26 +296,25 @@ def main_menu():
     n_image = pygame.transform.scale(image, (w, h))
 
     while True:
-        # screen.blit(bg, (0,0)) 
-        map_image = pygame.image.load("data/128map.png")
+        map_image = pygame.image.load("data/Title.png")
+        map_image = pygame.transform.scale(map_image, (screen_width, screen_height))
 
-# Display the image at (0, 0)
         screen.blit(map_image, (0, 0))
 
         MENU_MOUSE_POS = pygame.mouse.get_pos()
 
-        MENU_TEXT = get_font(50).render('MAIN MENU', True, 'white')
-        MENU_RECT = MENU_TEXT.get_rect(center=(screen_width // 2, 100))
+        # MENU_TEXT = get_font(50).render('MAIN MENU', True, 'white')
+        # MENU_RECT = MENU_TEXT.get_rect(center=(screen_width // 2, 100))
 
         PLAY_BUTTON = Button(image=n_image,
-                             pos=(screen_width // 2, 300), text_input="PLAY", font=get_font(75), base_color="#d7fcd4",
+                             pos=(screen_width // 2, 625), text_input="PLAY", font=get_font(75), base_color="#d7fcd4",
                              hovering_color="White")
-        OPTIONS_BUTTON = Button(image=n_image, pos=(screen_width // 2, 600),
+        OPTIONS_BUTTON = Button(image=n_image, pos=(screen_width // 2, 800),
                                 text_input="OPTIONS", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
-        QUIT_BUTTON = Button(image=n_image, pos=(screen_width // 2, 900),
+        QUIT_BUTTON = Button(image=n_image, pos=(screen_width // 2, 975),
                              text_input="QUIT", font=get_font(75), base_color="#d7fcd4", hovering_color="White")
 
-        screen.blit(MENU_TEXT, MENU_RECT)
+        # screen.blit(MENU_TEXT, MENU_RECT)
 
         for button in [PLAY_BUTTON, OPTIONS_BUTTON, QUIT_BUTTON]:
             button.changeColor(MENU_MOUSE_POS)
@@ -343,6 +336,5 @@ def main_menu():
         pygame.display.update()
 
 
-# Run the game
 if __name__ == "__main__":
     main_menu()
