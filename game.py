@@ -47,6 +47,7 @@ spatial_grid = SpatialGrid(cell_size, world_width, world_height)
 def get_font(size):
     return pygame.font.Font('data/Grand9K Pixel.ttf', size)
 
+
 def clear_all_enemies():
     # Clear spatial grid
     spatial_grid.clear()
@@ -126,7 +127,6 @@ def reset_game():
 
 sound = Sound()
 
-
 def main():
     clock = pygame.time.Clock()
     min_range = 500
@@ -148,7 +148,6 @@ def main():
 
     running = True
     while running:
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -188,19 +187,13 @@ def main():
             player.update(keys)
 
             if keys[pygame.K_ESCAPE]:
-                running = False
-                pygame.quit()
-                sys.exit()
+                reset_game()
+                main_menu()
             if keys[pygame.K_SPACE]:
                 running = False
                 sys.exit()
             if keys[pygame.K_m]:
                 camera.shake(20, 5)
-
-            """
-            DEBUGGING PURPOSES
-            """
-
             if keys[pygame.K_1]:
                 player.xp = 0
             elif keys[pygame.K_2]:
@@ -247,18 +240,21 @@ os.chdir(os.path.dirname(__file__))
 data_path = os.path.join("data", "Button_Frame_.png")
 
 def options():
-    image = pygame.image.load('data/button.png')
+    image = pygame.image.load(data_path)
 
     w = 400
     h = 300
 
     n_image = pygame.transform.scale(image, (w, h))
     while True:
-        screen.fill('blue')
+        map_image = pygame.image.load("data/128map.png")
 
+# Display the image at (0, 0)
+        screen.blit(map_image, (0, 0))
+       
         MENU_MOUSE_POS = pygame.mouse.get_pos()
 
-        OPTIONS_TEXT = get_font(50).render('OPTIONS', True, 'red')
+        OPTIONS_TEXT = get_font(50).render('OPTIONS', True, 'white')
         OPTIONS_RECT = OPTIONS_TEXT.get_rect(center=(screen_width // 2, 100))
         screen.blit(OPTIONS_TEXT, OPTIONS_RECT)
         keys = pygame.key.get_pressed()
@@ -314,7 +310,7 @@ def main_menu():
 
         MENU_MOUSE_POS = pygame.mouse.get_pos()
 
-        MENU_TEXT = get_font(50).render('MAIN MENU', True, '#b68f40')
+        MENU_TEXT = get_font(50).render('MAIN MENU', True, 'white')
         MENU_RECT = MENU_TEXT.get_rect(center=(screen_width // 2, 100))
 
         PLAY_BUTTON = Button(image=n_image,
